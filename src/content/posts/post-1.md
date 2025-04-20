@@ -1,9 +1,9 @@
 ---
-title: Markdown Example
-published: 2023-10-01
-description: A simple example of a Markdown blog post.
-tags: [Markdown, Blogging, Demo]
-category: Examples
+title: 成功复活
+published: 2024-04-20
+description: 复活了
+tags: [Markdown, Blogging, Demo,reborn]
+category: 瞎折腾
 draft: false
 ---
 
