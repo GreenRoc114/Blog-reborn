@@ -7,8 +7,8 @@ import type {
 import { LinkPreset } from './types/config'
 
 export const siteConfig: SiteConfig = {
-  title: '熔岩墨迹',
-  subtitle: 'Magma Ink',
+  title: 'Ahhf45',
+  subtitle: 'GreenRoc的博客',
   lang: 'zh_CN',         // 'en', 'zh_CN', 'zh_TW', 'ja', 'ko'
   themeColor: {
     hue: 50,         // Default hue for the theme color, from 0 to 360. e.g. red: 0, teal: 200, cyan: 250, pink: 345
@@ -59,29 +59,19 @@ export const navBarConfig: NavBarConfig = {
 }
 
 export const profileConfig: ProfileConfig = {
-  avatar: 'assets/images/avatar.jpg',  // Relative to the /src directory. Relative to the /public directory if it starts with '/'
-  name: '岩浆块Magma',
-  bio: '为美好的生活献礼',
+  avatar: 'https://cd.ahhf45.top/r.php',  // Relative to the /src directory. Relative to the /public directory if it starts with '/'
+  name: 'GreenRoc',
+  bio: 'No Fate,We Make.',
   links: [
     {
       name: "GitHub",
       icon: "fa6-brands:github",
-      url: "https://github.com/MagmaBlock",
+      url: "https://github.com/GreenRoc114",
     },
     {
       name: "Bilibili",
       icon: "fa6-brands:bilibili",
-      url: "https://space.bilibili.com/6281315",
-    },
-    {
-      name: "Mastodon",
-      icon: "fa6-brands:mastodon",
-      url: "https://hydrate.space/@magma",
-    },
-    {
-      name: "邮件",
-      icon: "material-symbols:mail",
-      url: "mailto:magmablock@qq.com",
+      url: "https://space.bilibili.com/1558348500",
     },
     {
       name: "RSS",
