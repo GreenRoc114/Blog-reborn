@@ -16,7 +16,7 @@ export const siteConfig: SiteConfig = {
   },
   banner: {
     enable: true,
-    src: 'https://alist.ahhf45.top/d/covers/banner.jpg?sign=18ubfLjkrWKVFzpYluxqbQJ6-8qTPYVdLEi6C2KRljM=:0',   // Relative to the /src directory. Relative to the /public directory if it starts with '/'
+    src: 'https://alist.ahhf45.top/d/covers/821657.jpeg?sign=CQeyNIg0ZCS7SQ8RdvTeHJRq9_fKM4M2k8Jasoyi7Zs=:0',   // Relative to the /src directory. Relative to the /public directory if it starts with '/'
     position: 'center',      // Equivalent to object-position, only supports 'top', 'center', 'bottom'. 'center' by default
     credit: {
       enable: false,         // Display the credit text of the banner image
