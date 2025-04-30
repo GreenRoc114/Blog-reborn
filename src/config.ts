@@ -51,6 +51,10 @@ export const navBarConfig: NavBarConfig = {
       url: "/contact/",
     },
     {
+      name: "21ball",
+      url: "/21ball/",
+    },
+    {
       name: "开往",
       url: "https://www.travellings.cn/go.html",
       external: true,
