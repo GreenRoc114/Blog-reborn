@@ -203,6 +203,12 @@ const links: { title: string; link: string; desc: string; img: string }[] = [
     link: "https://blog.aulypc0x0.online/",
     img: "https://blog.aulypc0x0.online/favicon/favicon_amiya.webp",
   },
+  {
+    link: "https://linearteam.top",
+    title: "LinearTeam",
+    img: "https://linearteam.top/wp-content/uploads/2025/03/cropped-logo-4.png",
+    desc: "GanFanKDXF",
+  },
 ];
 
 const randomLinks = computed(() => links.sort(() => Math.random() - 0.5));
