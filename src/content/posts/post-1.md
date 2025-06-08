@@ -17,6 +17,6 @@ draft: false
 <script>
   new APlayer({
     container: document.getElementById('aplayer'),
-    audio: [{ url: 'https://alist.ahhf45.top/d/covers/post-1/Tobu%20%26%20Luke%20Bergs%20-%20Heroes.mp3?sign=Kuc1gQOrQqjQg8zmedBpRRqS00ciTFoSU_4BUvvGLnc=:0', name: 'Heroes', cover: 'https://tobu.io/img/covers/tobu_heroes_041745598570.jpg'}]
+    audio: [{ url: 'https://alist.ahhf45.top/d/covers/post-1/Tobu%20%26%20Luke%20Bergs%20-%20Heroes.mp3?sign=Kuc1gQOrQqjQg8zmedBpRRqS00ciTFoSU_4BUvvGLnc=:0', name: 'Heroes'}]
   });
 </script>
