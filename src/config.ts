@@ -30,7 +30,7 @@ export const siteConfig: SiteConfig = {
   },
   favicon: [    // Leave this array empty to use the default favicon
     {
-      src: '/favicon/logo.png',    // Path of the favicon, relative to the /public directory
+      src: 'http://q1.qlogo.cn/g?b=qq&nk=3310149631@qq.com&s=640',    // Path of the favicon, relative to the /public directory
     //   theme: 'light',              // (Optional) Either 'light' or 'dark', set only if you have different favicons for light and dark mode
     //   sizes: '32x32',              // (Optional) Size of the favicon, set only if you have favicons of different sizes
     }
@@ -63,9 +63,9 @@ export const navBarConfig: NavBarConfig = {
 }
 
 export const profileConfig: ProfileConfig = {
-  avatar: 'https://cd.ahhf45.top/r.php',  // Relative to the /src directory. Relative to the /public directory if it starts with '/'
+  avatar: 'http://q1.qlogo.cn/g?b=qq&nk=3310149631@qq.com&s=640',  // Relative to the /src directory. Relative to the /public directory if it starts with '/'
   name: 'GreenRoc',
-  bio: 'No Fate,We Make.',
+  bio: '生命不息，折腾不止。',
   links: [
     {
       name: "GitHub",
