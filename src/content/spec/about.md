@@ -10,7 +10,7 @@
 
 ## 版权信息与转载许可
 
-本站（[https://ahhf45.top](https://ahhf45.top)）的所有文章、界面（有另外声明的除外）均在[署名-非商业性使用-相同方式共享 4.0 国际 (CC BY-NC-SA 4.0)](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh-hans)许可协议下提供。如果您需要转载上述内容，请附带来源，并且不可将其使用于商业用途。
+本站（[https://gr114.com](https://gr114.com)）的所有文章、界面（有另外声明的除外）均在[署名-非商业性使用-相同方式共享 4.0 国际 (CC BY-NC-SA 4.0)](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh-hans)许可协议下提供。如果您需要转载上述内容，请附带来源，并且不可将其使用于商业用途。
 
 ![](images/CC-BY-NC-SA88x31.png)
 
