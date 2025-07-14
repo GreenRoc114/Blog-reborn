@@ -32,5 +32,5 @@ draft: false
 
 - 名称：Ahhf45
 - 描述：No fate, we make.
-- 地址：https://ahhf45.top/
+- 地址：https://gr114.com
 - 图片：还没想好
