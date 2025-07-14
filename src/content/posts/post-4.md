@@ -2,7 +2,7 @@
 title: 我的十年游戏史
 published: 2025-06-17 23:10:10
 description: 我十年多的游戏史
-image: 'https://alist.ahhf45.top/d/covers/post-4/cover.webp?sign=HK4v87T2DXluoWNnskhrSpGD9M0iQXXW5OqioVZ0FB8=:0'
+image: 'https://alist.gr114.com/d/covers/post-4/cover.webp?sign=HK4v87T2DXluoWNnskhrSpGD9M0iQXXW5OqioVZ0FB8=:0'
 tags: [游戏, 历史]
 category: 快乐游戏
 draft: false
