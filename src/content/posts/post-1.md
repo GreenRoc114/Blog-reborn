@@ -2,7 +2,7 @@
 title: 成功复活
 published: 2024-04-20
 description: 复活了
-image: 'https://alist.ahhf45.top/d/covers/post-1/cover.webp?sign=3rZBacWM3YOW8FhuTGb3StnZ-5GKfwdUpwnB4I_hSf4=:0'
+image: 'https://alist.gr114.com/d/covers/post-1/cover.webp?sign=3rZBacWM3YOW8FhuTGb3StnZ-5GKfwdUpwnB4I_hSf4=:0'
 tags: [Markdown, Blogging, Demo,reborn]
 category: 瞎折腾
 draft: false
