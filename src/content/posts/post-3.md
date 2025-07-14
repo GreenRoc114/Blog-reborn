@@ -2,7 +2,7 @@
 title: 扁平化与拟物化
 published: 2025-06-17 19:10:10
 description: 简单讲讲扁平化和拟物化。
-image: 'https://alist.ahhf45.top/d/covers/post-3/cover.webp?sign=u0d43DxOaWS2hmRS7srw1ZmvtdKnCJhImdJDdonH8Y8=:0'
+image: 'https://alist.gr114.com/d/covers/post-3/cover.webp?sign=u0d43DxOaWS2hmRS7srw1ZmvtdKnCJhImdJDdonH8Y8=:0'
 tags: [扁平, 拟物, 设计]
 category: 生活闲聊
 draft: false
