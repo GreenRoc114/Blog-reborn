@@ -31,6 +31,6 @@ draft: false
 ## 本站的友链信息
 
 - 名称：Ahhf45
-- 描述：No fate, we make.
+- 描述：生命不息，折腾不止。
 - 地址：https://gr114.com
 - 图片：还没想好
