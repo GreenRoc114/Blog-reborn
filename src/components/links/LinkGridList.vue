@@ -209,6 +209,13 @@ const links: { title: string; link: string; desc: string; img: string }[] = [
     img: "https://linearteam.top/wp-content/uploads/2025/03/cropped-logo-4.png",
     desc: "GanFanKDXF",
   },
+  {
+    link: "https://blog.ffeng123.win",
+    title: "峰峰的小窝",
+    img: "https://blog.ffeng123.win/upload/622c1416-b585-4ccb-b4dc-227afa378c27.png",
+    desc: "我能想到的，最大的成功就是无愧于自己的心。",
+  },
+
 ];
 
 const randomLinks = computed(() => links.sort(() => Math.random() - 0.5));
