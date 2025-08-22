@@ -215,6 +215,12 @@ const links: { title: string; link: string; desc: string; img: string }[] = [
     img: "https://blog.ffeng123.win/upload/622c1416-b585-4ccb-b4dc-227afa378c27.png",
     desc: "我能想到的，最大的成功就是无愧于自己的心。",
   },
+  {
+    link: "https://www.jcblog.com.cn",
+    title: "间窗的博客 Jcblog",
+    img: "https://www.jcblog.com.cn/_next/image?url=%2Favatars%2Fa.png&w=128&q=75",
+    desc: "这是间窗的博客，是你可以随时来的地方。",
+  },
 
 ];
 
