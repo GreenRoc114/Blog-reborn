@@ -42,20 +42,24 @@ export const navBarConfig: NavBarConfig = {
     LinkPreset.Home,
     LinkPreset.Archive,
     {
-      name: "友联",
+      name: "🔗友联",
       url: "/links/",
     },
     LinkPreset.About,
     {
-      name: "联系",
+      name: "📞联系",
       url: "/contact/",
     },
     {
-      name: "21ball",
+      name: "📷摄影",
+      url: "/photo/",
+    },
+    {
+      name: "🎱21ball",
       url: "/21ball/",
     },
     {
-      name: "开往",
+      name: "🚀开往",
       url: "https://www.travellings.cn/go.html",
       external: true,
     },
