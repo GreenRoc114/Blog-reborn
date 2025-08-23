@@ -1,0 +1,39 @@
+---
+import MainGridLayout from '../layouts/MainGridLayout.astro'
+import PhotoGallery from '@components/widget/PhotoGallery.astro'
+import { i18n } from '../i18n/translation'
+import I18nKey from '../i18n/i18nKey'
+
+// 摄影作品数据 - 使用实际文件名
+const photos = [
+  {
+    src: '/images/DSC_0337.jpg',
+    alt: '摄影作品1'
+  },
+  {
+    src: '/images/DSC_0412.jpg',
+    alt: '摄影作品2'
+  },
+  {
+    src: '/images/DSC_0633.jpg',
+    alt: '摄影作品3'
+  },
+  {
+    src: '/images/DSC_0636.jpg',
+    alt: '摄影作品4'
+  }
+]
+---
+<MainGridLayout title={i18n(I18nKey.example)} description={i18n(I18nKey.exampleDescription)}>
+  <style is:global>
+    :root.dark {
+      --deep-text: oklch(0.95 0.02 var(--hue));
+      --title-active: oklch(0.95 0.02 var(--hue));
+    }
+  </style>
+  <div class="card-base p-6 rounded-[var(--radius-large)] overflow-hidden relative">
+    <h1 class="text-3xl font-bold mb-6 text-center text-[var(--title-active)]">{i18n(I18nKey.example)}</h1>
+    <p class="text-center mb-8 max-w-2xl mx-auto text-[var(--deep-text)]">这是我的摄影作品合集，展示了我在旅行和日常生活中捕捉的精彩瞬间。</p>
+    <PhotoGallery photos={photos} />
+  </div>
+</MainGridLayout>
