@@ -16,7 +16,7 @@ const { photos, className } = Astro.props
   <!-- 瀑布流容器 -->
   <div class="masonry-grid">
     {photos.map((photo, index) => (
-      <div key={index} class="masonry-item group relative overflow-hidden rounded-lg bg-[var(--card-bg)] transition-all duration-300 hover:shadow-lg hover:shadow-[var(--primary)/20] cursor-pointer" onclick="openImageModal('{photo.src}', '{photo.alt}')">
+      <div key={index} class="masonry-item group relative overflow-hidden rounded-lg bg-[var(--card-bg)] transition-all duration-300 hover:shadow-lg hover:shadow-[var(--primary)/20] cursor-pointer" data-src={photo.src} data-alt={photo.alt} onclick="window.openImageModal(this.dataset.src, this.dataset.alt)">
         <ImageWrapper
           src={photo.src}
           alt={photo.alt}
@@ -43,7 +43,8 @@ const { photos, className } = Astro.props
 </div>
 
 <script>
-  function openImageModal(src, alt) {
+  // 将函数绑定到window对象，使其全局可访问
+  window.openImageModal = function(src, alt) {
     const modal = document.getElementById('imageModal');
     const modalImage = document.getElementById('modalImage');
     const modalAlt = document.getElementById('modalAlt');
@@ -54,7 +55,7 @@ const { photos, className } = Astro.props
     document.body.style.overflow = 'hidden';
   }
 
-  function closeImageModal() {
+  window.closeImageModal = function() {
     const modal = document.getElementById('imageModal');
     modal.classList.add('opacity-0', 'pointer-events-none');
     document.body.style.overflow = '';
@@ -63,7 +64,7 @@ const { photos, className } = Astro.props
   // 点击模态框外部关闭
   document.getElementById('imageModal')?.addEventListener('click', (e) => {
     if (e.target === document.getElementById('imageModal')) {
-      closeImageModal();
+      window.closeImageModal();
     }
   });
 </script>
