@@ -4,7 +4,7 @@ published: 2025-05-16 19:10:10
 description: 上课的课前测。
 image: 'https://alist.gr114.com/d/covers/post-2/cover1.webp?sign=rmFsW_DkyvfJsoQG4m_yY2ZbmAtW0F7YWVOY6AxLEN4=:0'
 tags: [Markdown, Blogging, Demo,reborn]
-category: 瞎折腾
+category: 认真学习
 draft: false
 ---
 
