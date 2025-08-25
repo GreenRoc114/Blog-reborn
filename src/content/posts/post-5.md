@@ -3,7 +3,7 @@ title: 联想TB-X605FC平板备份&刷机
 published: 2025-06-18 11:10:10
 description: 平板备份刷机
 image: 'https://alist.gr114.com/d/covers/post-dif1/cover.webp?sign=_Oydq5A17XWSIPgvVNweoPwpfsJimSe1ZKf3OlnKdEQ=:0'
-tags: [备份, 刷机，联想]
+tags: [备份, 刷机,联想,肠炎]
 category: 瞎折腾
 draft: false
 ---
