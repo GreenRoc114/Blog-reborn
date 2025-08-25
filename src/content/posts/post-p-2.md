@@ -5,7 +5,7 @@ updated: 2025-03-08
 description: '大家为周二的历史听写做好准备，这些供大家参考'
 image: ''
 tags: [Markdown, Learning]
-category: '学习'
+category: '认真学习'
 draft: false 
 ---
 
