@@ -26,14 +26,7 @@ let links: NavBarLink[] = navBarConfig.links.map(
         "card-base !overflow-visible max-w-[var(--page-width)] h-[4.5rem] !rounded-t-none mx-auto flex items-center justify-between px-4"]}>
         <a href={url('/')} class="btn-plain scale-animation rounded-lg h-[3.25rem] px-5 font-bold active:scale-95">
             <div class="flex flex-row text-[var(--primary)] items-center text-md">
-                <div class="mr-2.5 flex items-center justify-center">
-                    <svg viewBox="0 0 100 100" class="w-6.5 h-6.5 filter drop-shadow-[0_1px_2px_rgba(0,0,0,0.15)] transition hover:rotate-[360deg] duration-700">
-                        <circle cx="50" cy="50" r="46" fill="#C2522D" />
-                        <rect x="47" y="38" width="6" height="38" rx="3" fill="#FAF9F6" />
-                        <path d="M28 32 C 28 26, 38 26, 38 26 L 62 26 C 62 26, 72 26, 72 32 C 72 38, 66 38, 62 38 L 38 38 C 34 38, 28 38, 28 32 Z" fill="#FAF9F6" />
-                        <circle cx="50" cy="50" r="1.5" fill="#C2522D" />
-                    </svg>
-                </div>
+                <Icon name="material-symbols:home-outline-rounded" class="text-[1.75rem] mb-1 mr-2" />
                 {siteConfig.title}
             </div>
         </a>
