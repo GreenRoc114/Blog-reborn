@@ -1,0 +1,266 @@
+@tailwind components;
+
+@layer components {
+    .card-base {
+        @apply rounded-[var(--radius-large)] overflow-hidden bg-[var(--card-bg)] transition border border-black/[0.05] dark:border-white/[0.05] shadow-skeuo-card dark:shadow-skeuo-card-dark;
+    }
+    h1, h2, h3, h4, h5, h6, p, a, span, li, ul, ol, blockquote, code, pre, table, th, td, strong {
+        @apply transition;
+    }
+    .card-shadow {
+        @apply shadow-skeuo-card dark:shadow-skeuo-card-dark;
+    }
+    .expand-animation {
+        @apply relative before:ease-out before:transition active:bg-none hover:before:bg-[var(--btn-plain-bg-hover)] active:before:bg-[var(--btn-plain-bg-active)] z-0
+        before:absolute before:rounded-[inherit] before:inset-0 before:scale-[0.85] hover:before:scale-100 before:-z-10
+    }
+    .link {
+        @apply transition rounded-md p-1 -m-1 expand-animation;
+    }
+    .link-lg {
+        @apply transition rounded-md p-1.5 -m-1.5 expand-animation;
+    }
+    .float-panel {
+        @apply top-[5.25rem] rounded-[var(--radius-large)] overflow-hidden bg-[var(--float-panel-bg)] transition shadow-xl dark:shadow-none
+    }
+    .float-panel-closed {
+        @apply -translate-y-1 opacity-0 pointer-events-none
+    }
+    .search-panel mark {
+        @apply bg-transparent text-[var(--primary)]
+    }
+
+    .btn-card {
+        @apply transition flex items-center justify-center bg-[var(--card-bg)] hover:bg-[var(--btn-card-bg-hover)]
+        active:bg-[var(--btn-card-bg-active)] border border-black/[0.04] dark:border-white/[0.05] shadow-skeuo-btn dark:shadow-none hover:-translate-y-[0.5px] active:translate-y-[0.5px] active:shadow-skeuo-btn-active;
+    }
+    .btn-card.disabled {
+        @apply pointer-events-none text-black/10 dark:text-white/10
+    }
+    .btn-plain {
+        @apply transition relative flex items-center justify-center bg-none
+        text-black/75 hover:text-[var(--primary)] dark:text-white/75 dark:hover:text-[var(--primary)];
+        &:not(.scale-animation) {
+            @apply hover:bg-[var(--btn-plain-bg-hover)] active:bg-[var(--btn-plain-bg-active)]
+        }
+        &.scale-animation {
+            @apply expand-animation;
+            &.current-theme-btn {
+                @apply before:scale-100 before:opacity-100 before:bg-[var(--btn-plain-bg-hover)] text-[var(--primary)]
+            }
+        }
+    }
+    .btn-regular {
+        @apply transition flex items-center justify-center bg-[var(--btn-regular-bg)] hover:bg-[var(--btn-regular-bg-hover)] active:bg-[var(--btn-regular-bg-active)]
+        text-[var(--btn-content)] dark:text-white/75 border border-black/[0.04] dark:border-white/[0.05] shadow-skeuo-btn dark:shadow-none hover:-translate-y-[0.5px] active:translate-y-[0.5px] active:shadow-skeuo-btn-active;
+    }
+
+    .link-underline {
+        @apply transition underline decoration-2 decoration-dashed decoration-[var(--link-underline)]
+        hover:decoration-[var(--link-hover)] active:decoration-[var(--link-active)] underline-offset-[0.25rem]
+    }
+
+    .toc-hide,
+    .toc-not-ready {
+        @apply opacity-0 pointer-events-none
+    }
+
+    #toc-inner-wrapper {
+        mask-image: linear-gradient(to bottom, transparent 0%, black 2rem, black calc(100% - 2rem), transparent 100%);
+    }
+
+    .hide-scrollbar {
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+    .hide-scrollbar::-webkit-scrollbar {
+        display: none;
+    }
+
+    .text-90 {
+        @apply text-black/90 dark:text-white/90
+    }
+    .text-75 {
+        @apply text-black/75 dark:text-white/75
+    }
+    .text-50 {
+        @apply text-black/50 dark:text-white/50
+    }
+    .text-30 {
+        @apply text-black/30 dark:text-white/30
+    }
+    .text-25 {
+        @apply text-black/25 dark:text-white/25
+    }
+
+    .meta-icon {
+        @apply w-8 h-8 transition rounded-md flex items-center justify-center bg-[var(--btn-regular-bg)]
+        text-[var(--btn-content)] mr-2
+    }
+    .with-divider {
+        @apply before:content-['/'] before:ml-1.5 before:mr-1.5 before:text-[var(--meta-divider)] before:text-sm
+        before:font-medium before:first-of-type:hidden before:transition
+    }
+
+    .btn-regular-dark {
+        @apply flex items-center justify-center
+        bg-[oklch(0.45_0.01_var(--hue))] hover:bg-[oklch(0.50_0.01_var(--hue))] active:bg-[oklch(0.55_0.01_var(--hue))]
+        dark:bg-[oklch(0.30_0.02_var(--hue))] dark:hover:bg-[oklch(0.35_0.03_var(--hue))] dark:active:bg-[oklch(0.40_0.03_var(--hue))]
+    }
+    .btn-regular-dark.success {
+        @apply bg-[oklch(0.75_0.14_var(--hue))] dark:bg-[oklch(0.75_0.14_var(--hue))]
+    }
+
+    .copy-btn-icon {
+        @apply absolute top-1/2 left-1/2 transition -translate-x-1/2 -translate-y-1/2
+    }
+    .copy-btn .copy-icon {
+        @apply opacity-100 fill-white dark:fill-white/75
+    }
+    .copy-btn.success .copy-icon {
+        @apply opacity-0 fill-[var(--deep-text)]
+    }
+    .copy-btn .success-icon {
+        @apply opacity-0
+    }
+    .copy-btn.success .success-icon {
+        @apply opacity-100
+    }
+}
+
+.custom-md img, #post-cover img {
+    @apply cursor-zoom-in
+}
+
+::selection {
+    background-color: var(--selection-bg)
+}
+
+.dash-line {
+    position: relative;
+}
+
+.dash-line::before {
+    content: "";
+    position: absolute;
+    width: 10%;
+    height: 100%;
+    left: calc(50% - 1px);
+    border-left: 2px dashed var(--line-color);
+    pointer-events: none;
+    transition: all 0.3s;
+    transform: translateY(-50%);
+}
+
+.collapsed {
+    height: var(--collapsedHeight);
+}
+
+/* ==========================================
+   APlayer Skeuomorphic (Hi-Fi) Styling
+   ========================================== */
+.aplayer {
+    background: #FAF8F5 !important;
+    border: 1px solid rgba(0, 0, 0, 0.08) !important;
+    border-bottom: 2px solid rgba(0, 0, 0, 0.12) !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.8) !important;
+    border-radius: 12px !important;
+    font-family: 'Plus Jakarta Sans', sans-serif !important;
+    overflow: hidden !important;
+    transition: all 0.3s ease !important;
+}
+
+.dark .aplayer {
+    background: #1C1C1A !important;
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+    border-bottom: 2px solid rgba(0, 0, 0, 0.4) !important;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+}
+
+.aplayer .aplayer-pic {
+    border-radius: 12px 0 0 12px !important;
+    box-shadow: inset -3px 0 6px rgba(0,0,0,0.15) !important;
+}
+
+.aplayer .aplayer-info {
+    padding: 12px 14px 12px 10px !important;
+    border-top: none !important;
+}
+
+.aplayer .aplayer-info .aplayer-music {
+    margin-bottom: 6px !important;
+}
+
+.aplayer .aplayer-info .aplayer-music .aplayer-title {
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    color: #1F1E1B !important;
+}
+
+.dark .aplayer .aplayer-info .aplayer-music .aplayer-title {
+    color: #FAF9F6 !important;
+}
+
+.aplayer .aplayer-info .aplayer-music .aplayer-author {
+    font-size: 11px !important;
+    color: #8E887B !important;
+}
+
+.dark .aplayer .aplayer-info .aplayer-music .aplayer-author {
+    color: #8A8A87 !important;
+}
+
+.aplayer .aplayer-info .aplayer-controller .aplayer-bar-wrap .aplayer-bar {
+    background: #EAE6D9 !important;
+    height: 5px !important;
+    border-radius: 3px !important;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.15) !important;
+}
+
+.dark .aplayer .aplayer-info .aplayer-controller .aplayer-bar-wrap .aplayer-bar {
+    background: #2D2D2A !important;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.4) !important;
+}
+
+.aplayer .aplayer-info .aplayer-controller .aplayer-bar-wrap .aplayer-bar .aplayer-loaded {
+    background: #D5CFBF !important;
+    height: 5px !important;
+    border-radius: 3px !important;
+}
+
+.dark .aplayer .aplayer-info .aplayer-controller .aplayer-bar-wrap .aplayer-bar .aplayer-loaded {
+    background: #3E3E3A !important;
+}
+
+.aplayer .aplayer-info .aplayer-controller .aplayer-bar-wrap .aplayer-bar .aplayer-played {
+    background: #C2522D !important;
+    height: 5px !important;
+    border-radius: 3px !important;
+}
+
+.aplayer .aplayer-info .aplayer-controller .aplayer-bar-wrap .aplayer-bar .aplayer-played .aplayer-thumb {
+    background: #C2522D !important;
+    border: 2px solid #FAF9F6 !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important;
+    width: 12px !important;
+    height: 12px !important;
+    margin-top: -3.5px !important;
+}
+
+/* Play/Pause Button overrides */
+.aplayer .aplayer-info .aplayer-controller .aplayer-time .aplayer-icon {
+    path {
+        fill: #8E887B !important;
+    }
+}
+.dark .aplayer .aplayer-info .aplayer-controller .aplayer-time .aplayer-icon {
+    path {
+        fill: #8A8A87 !important;
+    }
+}
+
+.aplayer .aplayer-info .aplayer-controller .aplayer-time .aplayer-icon:hover {
+    path {
+        fill: #C2522D !important;
+    }
+}

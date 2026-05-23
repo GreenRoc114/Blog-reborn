@@ -1,0 +1,39 @@
+---
+import MainGridLayout from '../layouts/MainGridLayout.astro'
+import PhotoGallery from '@components/widget/PhotoGallery.astro'
+import { i18n } from '../i18n/translation'
+import I18nKey from '../i18n/i18nKey'
+
+// 摄影作品数据 - 使用实际文件名
+const photos = [
+  {
+    src: 'https://alist.gr114.com/d/covers/photo-images/psc%20(1).jpg?sign=6-uDZxqR-YpCCP43Bti02cy_X448pgWqy9aGSCFhQgg=:0',
+    alt: '001'
+  },
+  {
+    src: 'https://alist.gr114.com/d/covers/photo-images/psc%20(2).jpg?sign=b0rB_sE3R_dxmzP8wPctZsX9RNTD9drEKxDvqfG9Wjs=:0',
+    alt: '002'
+  },
+  {
+    src: 'https://alist.gr114.com/d/covers/photo-images/psc%20(4).jpg?sign=m2URWuQL2uSLLudgxInmPG0oM3Gy13mTi2ug_-bYOBo=:0',
+    alt: '003'
+  },
+  {
+    src: 'https://alist.gr114.com/d/covers/photo-images/psc.jpg?sign=zIiPofyvyJgWPfPVpGfEDTl35BnbH3VGSYudvwq7oLE=:0',
+    alt: '004'
+  }
+]
+---
+<MainGridLayout title={i18n(I18nKey.example)} description={i18n(I18nKey.exampleDescription)}>
+  <style is:global>
+    :root.dark {
+      --deep-text: oklch(0.95 0.02 var(--hue));
+      --title-active: oklch(0.95 0.02 var(--hue));
+    }
+  </style>
+  <div class="card-base p-6 rounded-[var(--radius-large)] overflow-hidden relative">
+    <h1 class="text-3xl font-bold mb-6 text-center text-[var(--title-active)]">{i18n(I18nKey.example)}</h1>
+    <p class="text-center mb-8 max-w-2xl mx-auto text-[var(--deep-text)]">这是我的摄影作品合集，展示了我在旅行和日常生活中捕捉的精彩瞬间。</p>
+    <PhotoGallery photos={photos} />
+  </div>
+</MainGridLayout>
