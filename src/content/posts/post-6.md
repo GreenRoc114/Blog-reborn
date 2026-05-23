@@ -2,7 +2,6 @@
 title: 霓虹闪烁的未来感：浅谈 Synthwave 及相关音乐风格
 published: 2025-08-24 10:10:23
 description: 这个暑假我喜欢上了Synthwave这种音乐风格，这篇文章就来谈一谈。
-image: 'https://alist.gr114.com/d/covers/post-6/cover.png?sign=RpTxCjRxqaS_4njzQc8IKQ20327yng1xUehr3oBpyEE=:0'
 tags: [音乐,Synthwave,复古未来]
 category: 美妙音乐
 draft: false

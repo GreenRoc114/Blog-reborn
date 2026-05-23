@@ -2,10 +2,10 @@
 title: 我的十年游戏史
 published: 2025-06-17 23:10:10
 description: 我十年多的游戏史
-image: 'https://alist.gr114.com/d/covers/post-4/cover.webp?sign=HK4v87T2DXluoWNnskhrSpGD9M0iQXXW5OqioVZ0FB8=:0'
 tags: [游戏, 历史]
 category: 快乐游戏
 draft: false
+pinned: true
 ---
 
 > 说在前头：我打小就对汽车感兴趣，所以就渐渐的迷上了汽车相关的游戏，下面是我从4岁左右至今的游戏史！

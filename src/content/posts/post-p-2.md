@@ -3,7 +3,6 @@ title: 历史听写
 published: 2025-03-08
 updated: 2025-03-08
 description: '大家为周二的历史听写做好准备，这些供大家参考'
-image: ''
 tags: [Markdown, Learning]
 category: '认真学习'
 draft: false 

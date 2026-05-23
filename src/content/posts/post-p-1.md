@@ -3,7 +3,6 @@ title: 新老交接
 published: 2025-03-08
 updated: 2025-03-08
 description: '新老博客的简单对比'
-image: ''
 tags: [Demo, Markdown, Blog]
 category: '瞎折腾'
 draft: false 

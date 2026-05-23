@@ -2,7 +2,6 @@
 title: Gran Velocita – Real Driving 体验分享：口袋里的“拟真赛道”，差点让我心肌梗塞
 published: 2025-08-25 10:19:28
 description: 新电动哦！
-image: 'https://alist.gr114.com/d/covers/post-7/hq720.jpeg?sign=PF7v2dU_NddgX4B-NmFHGBsKwm_JjBmWb_gRYqAWKIY=:0'
 tags: [赛车,拟真,游戏]
 category: 快乐游戏
 draft: false

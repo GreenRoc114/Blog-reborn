@@ -2,7 +2,6 @@
 title: 百词斩单词机 ACE-1S 使用体验：小巧便携的“外星科技”
 published: 2025-08-25 15:03:28
 description: 我的背单词设备
-image: 'https://alist.gr114.com/d/covers/post-8/IMG_0781.jpeg?sign=1i_PCecueniNlbItEU_GFSrO-CBsHNe9pzKa192pUeg=:0'
 tags: [学习,百词斩,单词机]
 category: 认真学习
 draft: false

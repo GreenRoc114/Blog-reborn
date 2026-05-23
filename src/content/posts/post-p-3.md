@@ -3,7 +3,6 @@ title: 博客新变化
 published: 2025-03-11
 updated: 2025-03-11
 description: '添加随机图片api'
-image: ''
 tags: [Markdown, Blog]
 category: '瞎折腾'
 draft: false 

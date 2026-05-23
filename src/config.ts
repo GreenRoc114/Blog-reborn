@@ -7,7 +7,7 @@ import type {
 import { LinkPreset } from './types/config'
 
 export const siteConfig: SiteConfig = {
-  title: 'Ahhf45',
+  title: 'LookSky',
   subtitle: 'GreenRoc的博客',
   lang: 'zh_CN',         // 'en', 'zh_CN', 'zh_TW', 'ja', 'ko'
   themeColor: {
@@ -39,29 +39,23 @@ export const siteConfig: SiteConfig = {
 
 export const navBarConfig: NavBarConfig = {
   links: [
-    LinkPreset.Home,
     LinkPreset.Archive,
     {
-      name: "🔗友联",
+      name: "友联",
       url: "/links/",
+      icon: "material-symbols:share-outline",
     },
     LinkPreset.About,
     {
-      name: "📞联系",
-      url: "/contact/",
-    },
-    {
-      name: "📷摄影",
-      url: "/photo/",
-    },
-    {
-      name: "🎱21ball",
+      name: "21ball",
       url: "/21ball/",
+      icon: "material-symbols:sports-baseball",
     },
     {
-      name: "🚀开往",
+      name: "开往",
       url: "https://www.travellings.cn/go.html",
       external: true,
+      icon: "material-symbols:rocket-launch-outline",
     },
   ],
 }

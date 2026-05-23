@@ -12,6 +12,11 @@ export async function getSortedPosts(): Promise<
 
   const sorted = allBlogPosts.sort(
     (a: { data: BlogPostData }, b: { data: BlogPostData }) => {
+      const pinnedA = a.data.pinned ? 1 : 0
+      const pinnedB = b.data.pinned ? 1 : 0
+      if (pinnedA !== pinnedB) {
+        return pinnedB - pinnedA
+      }
       const dateA = new Date(a.data.published)
       const dateB = new Date(b.data.published)
       return dateA > dateB ? -1 : 1

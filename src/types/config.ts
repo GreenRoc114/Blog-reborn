@@ -44,6 +44,7 @@ export type NavBarLink = {
   name: string
   url: string
   external?: boolean
+  icon?: string
 }
 
 export type NavBarConfig = {
@@ -81,6 +82,7 @@ export type BlogPostData = {
   draft?: boolean
   image?: string
   category?: string
+  pinned?: boolean
   prevTitle?: string
   prevSlug?: string
   nextTitle?: string

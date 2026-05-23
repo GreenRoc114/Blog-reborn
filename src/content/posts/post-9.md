@@ -2,7 +2,6 @@
 title: 从锤子到轻拟物，美学的轮回与惋惜
 published: 2025-08-26 10:36:28
 description: 老罗赶快回来做手机
-image: 'https://alist.gr114.com/d/covers/post-9/IMG_0785.jpeg?sign=fhBfWJ-BmUApmafPbHlFe1fkKz78oysCx-hf6yH-J4g=:0'
 tags: [锤子科技,拟物化,平面设计]
 category: 生活闲聊
 draft: false
