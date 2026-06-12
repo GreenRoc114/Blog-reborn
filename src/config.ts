@@ -30,9 +30,7 @@ export const siteConfig: SiteConfig = {
   },
   favicon: [    // Leave this array empty to use the default favicon
     {
-      src: 'http://q1.qlogo.cn/g?b=qq&nk=3310149631@qq.com&s=640',    // Path of the favicon, relative to the /public directory
-    //   theme: 'light',              // (Optional) Either 'light' or 'dark', set only if you have different favicons for light and dark mode
-    //   sizes: '32x32',              // (Optional) Size of the favicon, set only if you have favicons of different sizes
+      src: '/favicon/favicon-cloud.svg',    // Path of the favicon, relative to the /public directory
     }
   ]
 }
