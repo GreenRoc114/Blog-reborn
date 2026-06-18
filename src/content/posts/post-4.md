@@ -3,6 +3,7 @@ title: 我的十年游戏史
 published: 2025-06-17 23:10:10
 updated: 2026-06-12
 description: 我十年多的游戏史
+image: ./game-history-cover.jpg
 tags: [游戏, 历史]
 category: 快乐游戏
 draft: false

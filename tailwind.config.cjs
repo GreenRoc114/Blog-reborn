@@ -6,8 +6,9 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["Plus Jakarta Sans", "Roboto", "sans-serif", ...defaultTheme.fontFamily.sans],
-        serif: ["Lora", "Georgia", "serif", ...defaultTheme.fontFamily.serif],
+        sans: ["Noto Serif SC", "Plus Jakarta Sans", "sans-serif", ...defaultTheme.fontFamily.sans],
+        serif: ["Noto Serif SC", "Lora", "Georgia", "serif", ...defaultTheme.fontFamily.serif],
+        mono: ["JetBrains Mono Variable", "JetBrains Mono", ...defaultTheme.fontFamily.mono],
       },
       boxShadow: {
         'skeuo-card': '0 4px 10px rgba(0, 0, 0, 0.05), 0 2px 4px rgba(0, 0, 0, 0.02), inset 0 1px 0 rgba(255, 255, 255, 0.6)',

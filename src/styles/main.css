@@ -2,7 +2,10 @@
 
 @layer components {
     .card-base {
-        @apply rounded-[var(--radius-large)] overflow-hidden bg-[var(--card-bg)] transition border border-black/[0.05] dark:border-white/[0.05] shadow-skeuo-card dark:shadow-skeuo-card-dark;
+        @apply rounded-[var(--radius-large)] overflow-hidden bg-[var(--card-bg)] transition-all duration-300 border border-black/[0.05] dark:border-white/[0.05] shadow-skeuo-card dark:shadow-skeuo-card-dark;
+        &:hover {
+            @apply -translate-y-[3px] shadow-xl dark:shadow-black/40;
+        }
     }
     h1, h2, h3, h4, h5, h6, p, a, span, li, ul, ol, blockquote, code, pre, table, th, td, strong {
         @apply transition;
