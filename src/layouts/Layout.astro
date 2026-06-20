@@ -155,6 +155,7 @@ const bannerOffset =
 		  data-overlayscrollbars-initialize
 	>
 		<ConfigCarrier></ConfigCarrier>
+		<div id="reading-progress" class="fixed top-0 left-0 w-full h-[2px] bg-[var(--primary)] z-[100] origin-left scale-x-0 transition-transform duration-100 ease-out pointer-events-none"></div>
 		<slot />
 
 		<!-- increase the page height during page transition to prevent the scrolling animation from jumping -->
@@ -460,6 +461,18 @@ function scrollFunction() {
 			navbar.classList.add('navbar-hidden')
 		} else {
 			navbar.classList.remove('navbar-hidden')
+		}
+	}
+
+	let progressBar = document.getElementById('reading-progress');
+	if (progressBar) {
+		let winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+		let height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+		if (height > 0) {
+			let scrolled = (winScroll / height);
+			progressBar.style.transform = `scaleX(${scrolled})`;
+		} else {
+			progressBar.style.transform = 'scaleX(0)';
 		}
 	}
 }

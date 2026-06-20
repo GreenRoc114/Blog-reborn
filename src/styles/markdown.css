@@ -21,11 +21,16 @@
     }
 
     a:not(.no-styling) {
-        @apply relative bg-none link font-medium text-[var(--primary)]
-        underline decoration-[var(--link-underline)] decoration-1 decoration-dashed underline-offset-4;
+        @apply relative bg-none link font-medium text-[var(--primary)] no-underline;
+        
+        /* Expandable underline effect */
+        &::after {
+            content: '';
+            @apply absolute left-0 bottom-0 w-full h-[2px] bg-[var(--primary)] scale-x-0 origin-center transition-transform duration-300 ease-out;
+        }
 
-        &:hover, &:active {
-            @apply decoration-transparent;
+        &:hover::after, &:active::after {
+            @apply scale-x-100;
         }
     }
 
@@ -56,7 +61,13 @@
 
     pre {
         @apply bg-[var(--codeblock-bg)] !important;
-        @apply rounded-xl px-5;
+        @apply rounded-xl px-5 pt-12 pb-5 relative;
+
+        /* Mac OS style window controls */
+        &::before {
+            content: '';
+            @apply absolute top-4 left-4 w-3 h-3 rounded-full bg-[#FF5F56] shadow-[1.25rem_0_0_#FFBD2E,2.5rem_0_0_#27C93F] z-10;
+        }
 
         code {
             @apply bg-transparent text-inherit text-sm p-0;
@@ -74,11 +85,11 @@
     }
 
     blockquote {
-        @apply not-italic border-transparent relative;
+        @apply not-italic relative rounded-r-lg bg-[var(--primary)]/5 dark:bg-[var(--primary)]/10 py-3 pr-4 pl-5;
         font-weight: inherit;
 
         &:before {
-            @apply content-[''] absolute -left-1 block transition bg-[var(--btn-regular-bg)] h-full w-1 rounded-full;
+            @apply content-[''] absolute left-0 top-0 block transition bg-[var(--primary)] h-full w-[4px] rounded-l-lg;
         }
 
         /* Remove the double quotes from default styles */

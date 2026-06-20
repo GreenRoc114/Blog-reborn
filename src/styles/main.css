@@ -136,7 +136,8 @@
 }
 
 ::selection {
-    background-color: var(--selection-bg)
+    background-color: oklch(0.85 0.15 var(--hue) / 0.5); /* Theme primary color with opacity */
+    color: inherit;
 }
 
 .dash-line {
