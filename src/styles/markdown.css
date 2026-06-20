@@ -85,7 +85,7 @@
     }
 
     blockquote {
-        @apply not-italic relative rounded-r-lg bg-[var(--primary)]/5 dark:bg-[var(--primary)]/10 py-3 pr-4 pl-5;
+        @apply not-italic relative rounded-r-lg bg-[oklch(0.75_0.14_var(--hue)/0.05)] dark:bg-[oklch(0.75_0.14_var(--hue)/0.10)] py-3 pr-4 pl-5;
         font-weight: inherit;
 
         &:before {
