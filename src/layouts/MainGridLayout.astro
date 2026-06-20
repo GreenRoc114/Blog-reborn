@@ -63,22 +63,56 @@ const mainPanelTop = siteConfig.banner.enable ? `calc(${BANNER_HEIGHT}vh - ${MAI
 
 <script is:inline>
     function initTypewriter() {
-        const text = "生命不息，折腾不止。";
-        let index = 0;
-        const speed = 180;
+        const phrases = [
+            "生命不息，折腾不止。",
+            "Stay hungry, stay foolish.",
+            "Talk is cheap, show me the code."
+        ];
+        let phraseIndex = 0;
+        let charIndex = 0;
+        let isDeleting = false;
+        
         const element = document.getElementById("typed-text");
         if (!element) return;
         element.textContent = "";
         
+        // 清理上一个页面的定时器，防止重影
+        if (window.typewriterTimeout) {
+            clearTimeout(window.typewriterTimeout);
+        }
+
         function type() {
             const currentElement = document.getElementById("typed-text");
-            if (currentElement && index < text.length) {
-                currentElement.textContent += text.charAt(index);
-                index++;
-                setTimeout(type, speed);
+            if (!currentElement) return;
+
+            const currentPhrase = phrases[phraseIndex];
+            
+            if (isDeleting) {
+                currentElement.textContent = currentPhrase.substring(0, charIndex - 1);
+                charIndex--;
+            } else {
+                currentElement.textContent = currentPhrase.substring(0, charIndex + 1);
+                charIndex++;
             }
+
+            // 拟人化打字速度：输入时有随机波动（100~180ms），删除时较快（30ms）
+            let typeSpeed = isDeleting ? 30 : 100 + Math.random() * 80;
+
+            if (!isDeleting && charIndex === currentPhrase.length) {
+                // 打完一句话后停顿 2.5 秒
+                typeSpeed = 2500;
+                isDeleting = true;
+            } else if (isDeleting && charIndex === 0) {
+                // 删除完毕后切换下一句，稍微停顿 0.5 秒
+                isDeleting = false;
+                phraseIndex = (phraseIndex + 1) % phrases.length;
+                typeSpeed = 500;
+            }
+
+            window.typewriterTimeout = setTimeout(type, typeSpeed);
         }
-        setTimeout(type, 300);
+        
+        window.typewriterTimeout = setTimeout(type, 300);
     }
     
     if (document.readyState === 'loading') {
