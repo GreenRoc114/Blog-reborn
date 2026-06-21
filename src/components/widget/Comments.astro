@@ -6,6 +6,10 @@
 </div>
 
 <script is:inline>
+    function getGiscusTheme() {
+        return document.documentElement.classList.contains('dark') ? 'noborder_dark' : 'noborder_light';
+    }
+
     function loadGiscus() {
         const wrapper = document.getElementById('giscus-wrapper');
         if (!wrapper) return;
@@ -22,13 +26,22 @@
         script.setAttribute('data-reactions-enabled', '1');
         script.setAttribute('data-emit-metadata', '0');
         script.setAttribute('data-input-position', 'top');
-        script.setAttribute('data-theme', 'preferred_color_scheme');
+        script.setAttribute('data-theme', getGiscusTheme());
         script.setAttribute('data-lang', 'zh-CN');
         script.setAttribute('data-loading', 'lazy');
         script.crossOrigin = 'anonymous';
         script.async = true;
 
         wrapper.appendChild(script);
+    }
+
+    function syncGiscusTheme() {
+        const iframe = document.querySelector('iframe.giscus-frame');
+        if (!iframe) return;
+        iframe.contentWindow.postMessage(
+            { giscus: { setConfig: { theme: getGiscusTheme() } } },
+            'https://giscus.app'
+        );
     }
 
     if (document.readyState === 'loading') {
@@ -49,4 +62,14 @@
             window.swup.hooks.on('page:view', loadGiscus);
         });
     }
+
+    // Observe theme changes
+    const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            if (mutation.attributeName === 'class') {
+                syncGiscusTheme();
+            }
+        });
+    });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
 </script>
