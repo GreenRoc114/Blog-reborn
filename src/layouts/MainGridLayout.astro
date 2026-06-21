@@ -149,6 +149,8 @@ const mainPanelTop = siteConfig.banner.enable ? `calc(${BANNER_HEIGHT}vh - ${MAI
                 <Profile></Profile>
             </div>
 
+            <SideBar class="mt-4 lg:mt-0 row-start-3 row-end-4 col-span-2 lg:row-start-1 lg:row-end-2 lg:col-span-1 lg:max-w-[17.5rem] onload-animation" headings={headings}></SideBar>
+
             <main id="swup-container" class="transition-swup-fade col-span-2 lg:col-span-1 overflow-hidden row-start-2 row-end-3 lg:row-start-1 lg:row-end-2">
                 <div id="content-wrapper" class="onload-animation">
                     <!-- the overflow-hidden here prevent long text break the layout-->
@@ -159,8 +161,6 @@ const mainPanelTop = siteConfig.banner.enable ? `calc(${BANNER_HEIGHT}vh - ${MAI
                     </div>
                 </div>
             </main>
-
-            <SideBar class="mt-4 lg:mt-0 row-start-3 row-end-4 col-span-2 lg:row-start-1 lg:row-end-2 lg:col-span-1 lg:max-w-[17.5rem] onload-animation" headings={headings}></SideBar>
 
             <div class="footer col-span-2 onload-animation block lg:hidden">
                 <Footer></Footer>
