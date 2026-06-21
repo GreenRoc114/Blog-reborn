@@ -21,7 +21,8 @@ const config = profileConfig
     <div class="px-2">
         <div class="font-serif font-bold italic text-xl text-center mb-1.5 dark:text-neutral-50 transition">{config.name}</div>
         <div class="h-0.5 w-8 bg-[var(--primary)] mx-auto rounded-full mb-3.5 transition"></div>
-        <div class="text-center text-neutral-400 mb-3.5 transition">{config.bio}</div>
+        <div class="text-center text-neutral-400 mb-2.5 transition">{config.bio}</div>
+        <div class="text-center text-sm text-neutral-500 dark:text-neutral-400 mb-3.5 transition">一个高中生，现在高一，喜欢研究电子产品。</div>
         <div class="flex gap-2 justify-center mb-1">
             {config.links.length > 1 && config.links.map(item =>
                     <a rel="me" aria-label={item.name} href={item.url} target="_blank" class="btn-regular rounded-lg h-10 w-10 active:scale-90">
