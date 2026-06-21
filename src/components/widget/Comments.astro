@@ -1,0 +1,52 @@
+---
+---
+<div class="card-base p-6 mb-4 onload-animation">
+    <h2 class="text-2xl font-bold mb-6 text-black/80 dark:text-white/80">评论</h2>
+    <div id="giscus-wrapper"></div>
+</div>
+
+<script is:inline>
+    function loadGiscus() {
+        const wrapper = document.getElementById('giscus-wrapper');
+        if (!wrapper) return;
+        wrapper.innerHTML = ''; // Clean up previous instance
+
+        const script = document.createElement('script');
+        script.src = 'https://giscus.app/client.js';
+        script.setAttribute('data-repo', 'GreenRoc114/Blog-reborn');
+        script.setAttribute('data-repo-id', 'R_kgDOOcgp7g');
+        script.setAttribute('data-category', 'Announcements');
+        script.setAttribute('data-category-id', 'DIC_kwDOOcgp7s4C_k5A');
+        script.setAttribute('data-mapping', 'pathname');
+        script.setAttribute('data-strict', '0');
+        script.setAttribute('data-reactions-enabled', '1');
+        script.setAttribute('data-emit-metadata', '0');
+        script.setAttribute('data-input-position', 'top');
+        script.setAttribute('data-theme', 'preferred_color_scheme');
+        script.setAttribute('data-lang', 'zh-CN');
+        script.setAttribute('data-loading', 'lazy');
+        script.crossOrigin = 'anonymous';
+        script.async = true;
+
+        wrapper.appendChild(script);
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', loadGiscus);
+    } else {
+        loadGiscus();
+    }
+
+    // Astro view transitions (if used)
+    document.addEventListener('astro:page-load', loadGiscus);
+    document.addEventListener('astro:after-swap', loadGiscus);
+
+    // Swup transitions
+    if (window.swup) {
+        window.swup.hooks.on('page:view', loadGiscus);
+    } else {
+        document.addEventListener('swup:enable', () => {
+            window.swup.hooks.on('page:view', loadGiscus);
+        });
+    }
+</script>
