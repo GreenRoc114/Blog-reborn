@@ -1,6 +1,7 @@
 ---
 import { getPostUrlBySlug } from '@utils/url-utils'
 import PostCard from './PostCard.astro'
+import MemoCard from './MemoCard.astro'
 
 const { page } = Astro.props
 
@@ -8,7 +9,17 @@ let delay = 0
 const interval = 50
 ---
 <div class="transition flex flex-col rounded-[var(--radius-large)] bg-[var(--card-bg)] py-1 md:py-0 md:bg-transparent md:gap-4 mb-4">
-    {page.data.map((entry: { data: { draft: boolean; title: string; tags: string[]; category: string; published: Date; image: string; description: string; updated: Date; }; slug: string; }) => {
+    {page.data.map((entry: any) => {
+        if (entry._type === 'memo') {
+            return (
+                <MemoCard
+                    memo={entry}
+                    channelName="greenroc114life"
+                    class="onload-animation"
+                    style={`animation-delay: calc(var(--content-delay) + ${delay++ * interval}ms);`}
+                />
+            );
+        }
         return (
             <PostCard
                     entry={entry}

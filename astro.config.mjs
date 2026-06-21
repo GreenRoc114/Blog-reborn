@@ -21,11 +21,15 @@ import { remarkReadingTime } from './src/plugins/remark-reading-time.mjs'
 
 import vue from '@astrojs/vue'
 
+import vercel from '@astrojs/vercel/serverless'
+
 // https://astro.build/config
 export default defineConfig({
   site: 'https://gr114.com',
   base: '/',
   trailingSlash: 'ignore',
+  output: 'hybrid',
+  adapter: vercel(),
   integrations: [
     tailwind({
       nesting: true,

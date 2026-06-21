@@ -1,7 +1,7 @@
 ---
-title: 博客折腾日记：个人卡片大换血与 Giscus 评论区踩坑实录
+title: 博客折腾日记：个人卡片、评论区与 Telegram 碎碎念接入实录
 published: 2026-06-21 13:40:00
-description: 生命不息折腾不止，给博客加上了游戏化个人卡片和 Giscus 评论区，顺便记录下踩坑经历。
+description: 生命不息折腾不止，给博客加上了游戏化个人卡片、Giscus 评论区，还顺手把 Telegram 频道接进来当碎碎念用了。
 tags: [博客建设, Giscus, 折腾, 踩坑]
 category: 折腾记录
 draft: false
@@ -87,8 +87,70 @@ draft: false
 
 实测效果不错，点右上角切换模式的时候，评论区基本上也是瞬间跟着变黑变白，强迫症终于舒服了。
 
-## 五、最后
+## 五、引入 Telegram 当“碎碎念”后端
 
-现在文章底部已经有评论框了，并且完全支持 Markdown 语法。如果你也碰巧在搭博客，或者遇到了和我一样的报错，希望这篇记录能帮到你。
+写长文太累，平时很多零碎的想法发推特又觉得没有自己的数据主权。于是盯上了 Telegram 频道，打算把它当成一个微型的无头 CMS（Headless CMS），拉取数据到博客里作为“碎碎念”。
+
+**1. 拒绝纯前端抓取**
+最省事的做法其实是开个单独的子页面，直接嵌个 iframe 或者用纯前端拉数据。但这么做体验不好：我想把碎碎念像朋友圈一样，直接混排在首页的长篇文章列表里。
+这就导致我得对博客动大刀：把原本极速纯静态（SSG）的首页，硬生生拉拽成了服务端渲染（SSR）模式。在 `astro.config.mjs` 里开启了 `hybrid` 模式，每次访问首页时，让 Vercel 服务端在后台实时扒取 `t.me/s/频道名` 的网页 DOM，用 `cheerio` 提纯出文字和图片，再和长文章按时间重新排序合并。
+
+在代码里，只需要给首页路由打个 SSR 的标记，并手写分页逻辑：
+```javascript
+// src/pages/[...page].astro
+export const prerender = false; // 强行关闭预渲染，开启 SSR
+
+const allBlogPosts = await getSortedPosts();
+const typedPosts = allBlogPosts.map(p => ({ ...p, _type: 'post' }));
+
+// 实时抓取最新的 Telegram 频道数据
+const memos = await fetchTelegramChannel('greenroc114life');
+const typedMemos = memos.map(m => ({ ...m, _type: 'memo' }));
+
+// 两头数据一锅炖，按发布时间降序排序
+const combinedItems = [...typedPosts, ...typedMemos].sort((a, b) => {
+    // ...排序逻辑略
+});
+```
+
+**2. 踩坑：Telegram 祖传防盗链**
+DOM 解析本身没啥难度，无非就是用正则过滤几个 class，但这期间结结实实踩了个坑：图片防盗链。
+把解析出来的 `<img>` 标签直接扔进页面里，文字正常渲染，图片全裂了。控制台一看，全部报 `403 Forbidden`。Telegram 显然对外部域名的直接请求进行了防盗链拦截。
+解决方法简单粗暴：套个免费的公共图片代理（比如 `wsrv.nl`）。我写了个替换逻辑，把所有 Telegram 的图片链接前缀挂到代理域名后面。顺带还能在 URL 后面加参数，让代理节点帮我压缩一下图片体积，省下一点客户端流量。
+
+几行正则直接药到病除：
+```typescript
+// 把图片 URL 塞进代理节点，顺手限制宽度 800px 以减轻加载压力
+const imageProxyUrl = 'https://wsrv.nl/?url=';
+
+// 从 DOM 里提纯出的 style 包含 background-image: url('...')
+const bgMatch = style.match(/url\(['"]?(.*?)['"]?\)/);
+if (bgMatch) {
+    let imgUrl = bgMatch[1];
+    // 强制走代理绕过 403
+    imgUrl = imageProxyUrl + encodeURIComponent(imgUrl) + '&w=800';
+    images.push(imgUrl);
+}
+```
+
+**3. 图片也得有尊严：接管原生缩放**
+数据跑通后，发现从 Telegram 拉下来的图片没法放大。博客本身自带了 PhotoSwipe 插件，提供原生的点按呼出沉浸式缩放。
+为了让两边体验对齐，我翻了一下博客底层布局逻辑，发现只要给外层容器套上一个 `custom-md` 的 class，PhotoSwipe 就会自动把这块区域识别为受控 DOM。加上这个类名之后，碎碎念里的梗图终于也能正常双击放大了。
+
+组件里的代码大致就长这样，极其简单：
+```astro
+<!-- 加上 custom-md，假装这是通过 Markdown 渲染出来的内容 -->
+<div class="custom-md grid gap-2 grid-cols-2 mt-4">
+    {memo.images.map(img => (
+        <a href={img.replace('&w=800', '')} target="_blank">
+            <img src={img} class="w-full h-auto object-cover" loading="lazy" />
+        </a>
+    ))}
+</div>
+```
+
+## 六、最后
+
+现在文章底部有评论框了（全量支持 Markdown），首页的时间线也终于充实了起来。如果你也碰巧在搭博客，或者遇到了和我一样的报错，希望这篇记录能帮到你。
 
 大家有什么想吐槽的，直接在下面评论区见。

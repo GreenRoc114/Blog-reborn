@@ -1,23 +1,59 @@
 ---
-import type { GetStaticPaths } from 'astro'
 import PostPage from '../components/PostPage.astro'
 import Pagination from '../components/control/Pagination.astro'
 import { PAGE_SIZE } from '../constants/constants'
 import MainGridLayout from '../layouts/MainGridLayout.astro'
 import { getSortedPosts } from '../utils/content-utils'
+import { fetchTelegramChannel } from '../utils/telegram'
 
-export const getStaticPaths = (async ({ paginate }) => {
-  const allBlogPosts = await getSortedPosts()
-  return paginate(allBlogPosts, { pageSize: PAGE_SIZE })
-}) satisfies GetStaticPaths
-// https://github.com/withastro/astro/issues/6507#issuecomment-1489916992
+export const prerender = false;
 
-const { page } = Astro.props
+// 1. Fetch Posts and Memos
+const allBlogPosts = await getSortedPosts();
+// Tag them so PostPage knows they are posts
+const typedPosts = allBlogPosts.map(p => ({ ...p, _type: 'post' }));
+
+const memos = await fetchTelegramChannel('greenroc114life');
+const typedMemos = memos.map(m => ({ ...m, _type: 'memo' }));
+
+// Combine and sort by date descending
+const combinedItems = [...typedPosts, ...typedMemos].sort((a, b) => {
+    const dateA = a._type === 'post' ? new Date(a.data.published) : new Date(a.datetime);
+    const dateB = b._type === 'post' ? new Date(b.data.published) : new Date(b.datetime);
+    return dateB.getTime() - dateA.getTime();
+});
+
+// Manual Pagination Logic
+const paramPage = Astro.params.page;
+let currentPage = 1;
+if (paramPage) {
+    if (paramPage === '1' || paramPage === '') currentPage = 1;
+    else currentPage = parseInt(paramPage, 10);
+}
+if (isNaN(currentPage) || currentPage < 1) currentPage = 1;
+
+const totalItems = combinedItems.length;
+const lastPage = Math.ceil(totalItems / PAGE_SIZE) || 1;
+if (currentPage > lastPage) currentPage = lastPage;
+
+const startIndex = (currentPage - 1) * PAGE_SIZE;
+const endIndex = startIndex + PAGE_SIZE;
+const paginatedData = combinedItems.slice(startIndex, endIndex);
+
+const page = {
+    data: paginatedData,
+    currentPage: currentPage,
+    lastPage: lastPage,
+    url: {
+        prev: currentPage > 1 ? (currentPage === 2 ? '/' : `/${currentPage - 1}/`) : undefined,
+        next: currentPage < lastPage ? `/${currentPage + 1}/` : undefined
+    }
+}
 
 const len = page.data.length
 ---
 
-<MainGridLayout>
+<MainGridLayout isHomePage={currentPage === 1}>
     <PostPage page={page}></PostPage>
     <Pagination class="mx-auto onload-animation" page={page} style=`animation-delay: calc(var(--content-delay) + ${(len)*50}ms)`></Pagination>
 </MainGridLayout>

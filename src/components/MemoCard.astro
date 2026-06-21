@@ -1,0 +1,48 @@
+---
+import { Icon } from 'astro-icon/components'
+
+interface Props {
+  class?: string
+  memo: any
+  style: string
+  channelName: string
+}
+const {
+  memo,
+  style,
+  channelName
+} = Astro.props
+const className = Astro.props.class
+---
+<div class:list={["card-base flex flex-col w-full rounded-[var(--radius-large)] overflow-hidden relative p-5 md:p-7", className]} style={style}>
+    
+    <div class="flex items-center gap-2 mb-4 text-sm text-neutral-500 font-bold">
+        <Icon name="fa6-solid:comment-dots" class="text-xl text-[var(--primary)] mr-1" />
+        <span class="text-[var(--primary)]">碎碎念</span>
+        <span class="opacity-50 mx-1">/</span>
+        <Icon name="fa6-regular:clock" />
+        <time datetime={memo.datetime}>
+            {new Date(memo.datetime).toLocaleString('zh-CN', {
+                year: 'numeric', month: '2-digit', day: '2-digit', 
+                hour: '2-digit', minute: '2-digit'
+            })}
+        </time>
+        <a href={`https://t.me/${channelName}/${memo.id}`} target="_blank" rel="noopener noreferrer" class="ml-auto hover:text-[var(--primary)] transition flex items-center gap-1 bg-black/5 dark:bg-white/10 px-2 py-1 rounded-md text-xs">
+            <Icon name="fa6-brands:telegram" class="text-sm" />
+            <span class="hidden md:inline">来源</span>
+        </a>
+    </div>
+    
+    <div class="custom-md prose dark:prose-invert max-w-none text-sm md:text-[0.95rem] leading-loose break-words" set:html={memo.html}></div>
+    
+    {memo.images && memo.images.length > 0 && (
+        <div class={`custom-md grid gap-2 ${memo.images.length > 1 ? 'grid-cols-2' : 'grid-cols-1'} mt-4`}>
+            {memo.images.map(img => (
+                <a href={img.replace('&w=800', '')} target="_blank" rel="noopener noreferrer" class="overflow-hidden rounded-xl border border-[var(--line-divider)] block">
+                    <img src={img} alt="Telegram Media" class="w-full h-auto object-cover hover:scale-105 transition-transform duration-500" loading="lazy" />
+                </a>
+            ))}
+        </div>
+    )}
+</div>
+<div class="transition border-t-[1px] border-dashed mx-6 border-black/10 dark:border-white/[0.15] last:border-t-0 md:hidden"></div>

@@ -47,6 +47,11 @@ export const navBarConfig: NavBarConfig = {
     },
     LinkPreset.About,
     {
+      name: "碎碎念",
+      url: "/memos/",
+      icon: "fa6-solid:comment-dots",
+    },
+    {
       name: "21ball",
       url: "/21ball/",
       icon: "material-symbols:sports-baseball",
