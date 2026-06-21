@@ -16,8 +16,14 @@ const typedPosts = allBlogPosts.map(p => ({ ...p, _type: 'post' }));
 const memos = await fetchTelegramChannel('greenroc114life');
 const typedMemos = memos.map(m => ({ ...m, _type: 'memo' }));
 
-// Combine and sort by date descending
+// Combine and sort by date descending, keeping pinned posts at the top
 const combinedItems = [...typedPosts, ...typedMemos].sort((a, b) => {
+    const pinnedA = (a._type === 'post' && a.data.pinned) ? 1 : 0;
+    const pinnedB = (b._type === 'post' && b.data.pinned) ? 1 : 0;
+    if (pinnedA !== pinnedB) {
+        return pinnedB - pinnedA;
+    }
+    
     const dateA = a._type === 'post' ? new Date(a.data.published) : new Date(a.datetime);
     const dateB = b._type === 'post' ? new Date(b.data.published) : new Date(b.datetime);
     return dateB.getTime() - dateA.getTime();
