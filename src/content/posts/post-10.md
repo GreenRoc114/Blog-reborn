@@ -149,7 +149,35 @@ if (bgMatch) {
 </div>
 ```
 
-## 六、最后
+## 六、Vercel 部署连环踩坑
+
+本来以为本地跑通了就可以直接推上云端享受了，结果 Vercel 直接给我甩了两个大嘴巴子，连续两次构建失败。
+
+**第一坑：`astro-compress` 插件挤爆内存**
+报错日志直接输出：`✘ [ERROR] The build was canceled`，前文还附带了 `Error: Cannot compress file ...`。
+查了一下才发现，博客底层集成了一个叫 `astro-compress` 的压缩插件。因为我把首页改成了 SSR，Vite 打包出来的底层 JS 文件变得极其复杂，超出了这个插件里 `terser` 的解析能力，直接把 Vercel 免费版的构建内存给干崩了。
+**解法**：Vite 引擎自己在打包时就已经对 JS 做了极高比例的压缩，再套一层二次压缩反而容易翻车。果断去 `astro.config.mjs` 里把它的 JS 压缩通道强制掐断：
+```javascript
+Compress({
+  CSS: false,
+  Image: false,
+  JavaScript: false, // 禁用二次压缩，防止 Vercel 炸内存
+})
+```
+
+**第二坑：Node.js 运行时版本过时**
+内存不炸了，Vercel 又报了个新错：`The following Serverless Functions contain an invalid "runtime": - _render (nodejs18.x)`。
+Vercel 最近开始强制要求新建的 Serverless 函数必须基于 Node 20 及以上。而为了兼容当前的 Astro 版本，我用了相对旧一点的 `@astrojs/vercel` 适配器。这个老适配器拿不准环境，直接 fallback 到了 `nodejs18.x`，结果被 Vercel 云端无情拦截。
+**解法**：在 `package.json` 里显式声明 `engines`，按着 Vercel 的头让它用 Node 20 跑构建，强制让适配器生成合规的配置文件。
+```json
+{
+  "engines": {
+    "node": "20.x"
+  }
+}
+```
+
+## 七、最后
 
 现在文章底部有评论框了（全量支持 Markdown），首页的时间线也终于充实了起来。如果你也碰巧在搭博客，或者遇到了和我一样的报错，希望这篇记录能帮到你。
 
