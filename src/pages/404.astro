@@ -5,11 +5,12 @@ import MainGridLayout from "@layouts/MainGridLayout.astro";
 
 <script>
   // 将早期的页面重定向到 /posts
-  if (!window.location.pathname.startsWith("/posts")) {
+  const currentPath = window.location.pathname;
+  if (!currentPath.startsWith("/posts") && currentPath !== "/404" && currentPath !== "/404/") {
     // 获取 /posts + 当前页面的 URL 是否存在
-    const linkWithPostPrefix = await fetch("/posts" + window.location.pathname);
-    // 如果存在，则跳转
-    if (linkWithPostPrefix.ok) {
+    const linkWithPostPrefix = await fetch("/posts" + currentPath);
+    // 如果存在，并且目标 URL 不是当前页面（防止无限刷新），则跳转
+    if (linkWithPostPrefix.ok && linkWithPostPrefix.url !== window.location.href) {
       window.location.href = linkWithPostPrefix.url;
     }
   }
