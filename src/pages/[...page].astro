@@ -37,15 +37,40 @@ const combinedItems = [...typedPosts, ...typedMemos].sort((a, b) => {
 // Manual Pagination Logic
 const paramPage = Astro.params.page;
 let currentPage = 1;
-if (paramPage) {
-    if (paramPage === '1' || paramPage === '') currentPage = 1;
-    else currentPage = parseInt(paramPage, 10);
+
+if (paramPage !== undefined && paramPage !== '') {
+    // Redirect legacy /posts/ pagination to the root
+    if (paramPage === 'posts' || paramPage === 'posts/') {
+        return Astro.redirect('/');
+    }
+    if (paramPage.startsWith('posts/')) {
+        const rest = paramPage.slice(6);
+        if (/^\d+$/.test(rest)) {
+            return Astro.redirect(`/${rest}`);
+        }
+    }
+    
+    // If paramPage is exactly '1', redirect to root to avoid duplicate content
+    if (paramPage === '1') {
+        return Astro.redirect('/');
+    }
+    
+    // If paramPage is not a valid number, it's an invalid URL that got caught by this catch-all route.
+    if (!/^\d+$/.test(paramPage)) {
+        return Astro.redirect('/404');
+    }
+    
+    currentPage = parseInt(paramPage, 10);
+    if (isNaN(currentPage) || currentPage < 1) {
+        return Astro.redirect('/404');
+    }
 }
-if (isNaN(currentPage) || currentPage < 1) currentPage = 1;
 
 const totalItems = combinedItems.length;
 const lastPage = Math.ceil(totalItems / PAGE_SIZE) || 1;
-if (currentPage > lastPage) currentPage = lastPage;
+if (currentPage > lastPage) {
+    return Astro.redirect(`/${lastPage}/`);
+}
 
 const startIndex = (currentPage - 1) * PAGE_SIZE;
 const endIndex = startIndex + PAGE_SIZE;
