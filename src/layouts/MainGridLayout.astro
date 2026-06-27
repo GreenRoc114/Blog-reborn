@@ -31,7 +31,7 @@ const hasBannerLink = !!siteConfig.banner.credit.url
 const mainPanelTop = siteConfig.banner.enable ? `calc(${BANNER_HEIGHT}vh - ${MAIN_PANEL_OVERLAPS_BANNER_HEIGHT}rem)` : "5.5rem"
 ---
 
-<Layout title={title} banner={banner} description={description} lang={lang} setOGTypeArticle={setOGTypeArticle}>
+<Layout title={title} banner={banner} description={description} lang={lang} setOGTypeArticle={setOGTypeArticle} isHomePage={isHomePage}>
 
 <!-- Navbar -->
 <slot slot="head" name="head"></slot>
@@ -71,9 +71,8 @@ const mainPanelTop = siteConfig.banner.enable ? `calc(${BANNER_HEIGHT}vh - ${MAI
     ];
 
     function isHome() {
-        // 双重检测：body class 或 URL 路径
-        var p = window.location.pathname.replace(/^\/|\/$/g, '').toLowerCase();
-        return document.body.classList.contains('lg:is-home') || p === '' || p === 'page/1';
+        // 完全依赖服务器与 Layout.astro 同步后的 class
+        return document.body.classList.contains('lg:is-home');
     }
 
     function showContainer() {
