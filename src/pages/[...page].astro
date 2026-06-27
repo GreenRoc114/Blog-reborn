@@ -8,6 +8,11 @@ import { fetchTelegramChannel } from '../utils/telegram'
 
 export const prerender = false;
 
+// 开启 Vercel 边缘缓存 (SWR机制)
+// s-maxage=60: 强制缓存 60 秒
+// stale-while-revalidate=600: 在随后的 10 分钟内，如果有用户访问，先秒回旧缓存，同时在后台偷偷抓取新数据更新缓存
+Astro.response.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=600');
+
 // 1. Fetch Posts and Memos
 const allBlogPosts = await getSortedPosts();
 // Tag them so PostPage knows they are posts
