@@ -43,104 +43,124 @@ const mainPanelTop = siteConfig.banner.enable ? `calc(${BANNER_HEIGHT}vh - ${MAI
 
 <!-- Banner / Typewriter Quote -->
 {siteConfig.banner.enable && <div id="banner-wrapper" class="absolute z-10 w-full transition duration-700 overflow-hidden flex items-center justify-center bg-[var(--page-bg)]" style=`top: -${BANNER_HEIGHT_EXTEND}vh`>
-        <div id="banner" class="w-full h-full bg-[var(--page-bg)] transition duration-700 opacity-0 scale-105 relative flex flex-col items-center justify-center px-6">
-            <style>
-                #typewriter-container {
-                    opacity: 0;
-                    pointer-events: none;
-                    transition: opacity 0.5s;
-                    display: flex;
-                }
-                :global(.lg\:is-home) #typewriter-container {
-                    opacity: 1;
-                    pointer-events: auto;
-                }
-            </style>
-            <div id="typewriter-container" class="w-full h-full flex-col items-center justify-center transition duration-700 absolute inset-0">
-                <div class="absolute inset-0 bg-[radial-gradient(#C2522D_1px,transparent_1px)] [background-size:16px_16px] opacity-[0.03] pointer-events-none"></div>
-                
-                <span class="text-4xl font-serif text-[var(--primary)] opacity-40 select-none mt-12">“</span>
-                <h2 class="font-serif font-bold italic text-2xl md:text-3xl text-[var(--deep-text)] tracking-wider leading-relaxed min-h-[4rem] flex items-center justify-center text-center">
-                    <span id="typed-text"></span><span class="animate-pulse text-[var(--primary)] font-normal ml-0.5 select-none">|</span>
-                </h2>
-                <span class="text-4xl font-serif text-[var(--primary)] opacity-40 select-none mt-2">”</span>
-                <div class="mt-4 text-xs font-bold tracking-widest text-[#8E887B] dark:text-[#8A8A87] uppercase font-sans select-none">
-                    — GreenRoc's Motto —
-                </div>
+    <div id="banner" class="w-full h-full bg-[var(--page-bg)] transition duration-700 opacity-0 scale-105 relative">
+        <!-- 打字机内容区，始终渲染在 DOM 里，JS 控制显隐 -->
+        <div id="typewriter-container" class="w-full h-full flex-col items-center justify-center absolute inset-0 hidden">
+            <div class="absolute inset-0 bg-[radial-gradient(#C2522D_1px,transparent_1px)] [background-size:16px_16px] opacity-[0.03] pointer-events-none"></div>
+            <span class="text-4xl font-serif text-[var(--primary)] opacity-40 select-none mt-12">“</span>
+            <h2 class="font-serif font-bold italic text-2xl md:text-3xl text-[var(--deep-text)] tracking-wider leading-relaxed min-h-[4rem] flex items-center justify-center text-center">
+                <span id="typed-text"></span><span class="animate-pulse text-[var(--primary)] font-normal ml-0.5 select-none">|</span>
+            </h2>
+            <span class="text-4xl font-serif text-[var(--primary)] opacity-40 select-none mt-2">”</span>
+            <div class="mt-4 text-xs font-bold tracking-widest text-[#8E887B] dark:text-[#8A8A87] uppercase font-sans select-none">
+                — GreenRoc's Motto —
             </div>
         </div>
+    </div>
 </div>}
 
 <script is:inline>
-    function initTypewriter() {
-        const phrases = [
-            "生命不息，折腾不止。",
-            "Stay hungry, stay foolish.",
-            "Talk is cheap, show me the code.",
-            "Never Gonna Give You Up",
-            "Never Gonna Let You Down"
-        ];
+(function() {
+    // ---- 状态变量，模块作用域隔离 ----
+    const phrases = [
+        "生命不息，折腾不止。",
+        "Stay hungry, stay foolish.",
+        "Talk is cheap, show me the code.",
+        "Never Gonna Give You Up",
+        "Never Gonna Let You Down"
+    ];
+
+    // ---- 更新打字机容器的显隐 ----
+    function syncVisibility() {
+        const container = document.getElementById('typewriter-container');
+        if (!container) return;
+        // body 上有 'lg:is-home' 说明当前是首页
+        const isHome = document.body.classList.contains('lg:is-home');
+        if (isHome) {
+            container.style.display = 'flex';
+            container.style.flexDirection = 'column';
+            container.style.alignItems = 'center';
+            container.style.justifyContent = 'center';
+        } else {
+            container.style.display = 'none';
+        }
+    }
+
+    // ---- 打字机核心逻辑 ----
+    function startTypewriter() {
+        // 先停掉上一轮
+        if (window._twTimer) {
+            clearTimeout(window._twTimer);
+            window._twTimer = null;
+        }
+
+        syncVisibility();
+
+        // 非首页不启动
+        if (!document.body.classList.contains('lg:is-home')) return;
+
+        const el = document.getElementById('typed-text');
+        if (!el) return;
+
         let phraseIndex = 0;
         let charIndex = 0;
         let isDeleting = false;
-        
-        const element = document.getElementById("typed-text");
-        if (!element) return;
-        element.textContent = "";
-        
-        // 清理上一个页面的定时器，防止重影
-        if (window.typewriterTimeout) {
-            clearTimeout(window.typewriterTimeout);
-        }
+        el.textContent = '';
 
-        function type() {
-            const currentElement = document.getElementById("typed-text");
-            if (!currentElement) return;
+        function tick() {
+            const cur = document.getElementById('typed-text');
+            // 元素已不在 DOM（页面切换了），直接停止
+            if (!cur) return;
 
-            const currentPhrase = phrases[phraseIndex];
-            
+            const phrase = phrases[phraseIndex];
             if (isDeleting) {
-                currentElement.textContent = currentPhrase.substring(0, charIndex - 1);
+                cur.textContent = phrase.substring(0, charIndex - 1);
                 charIndex--;
             } else {
-                currentElement.textContent = currentPhrase.substring(0, charIndex + 1);
+                cur.textContent = phrase.substring(0, charIndex + 1);
                 charIndex++;
             }
 
-            // 拟人化打字速度：输入时有随机波动（100~180ms），删除时较快（30ms）
-            let typeSpeed = isDeleting ? 30 : 100 + Math.random() * 80;
-
-            if (!isDeleting && charIndex === currentPhrase.length) {
-                // 打完一句话后停顿 2.5 秒
-                typeSpeed = 2500;
+            let delay = isDeleting ? 30 : 100 + Math.random() * 80;
+            if (!isDeleting && charIndex === phrase.length) {
+                delay = 2500;
                 isDeleting = true;
             } else if (isDeleting && charIndex === 0) {
-                // 删除完毕后切换下一句，稍微停顿 0.5 秒
                 isDeleting = false;
                 phraseIndex = (phraseIndex + 1) % phrases.length;
-                typeSpeed = 500;
+                delay = 500;
             }
-
-            window.typewriterTimeout = setTimeout(type, typeSpeed);
+            window._twTimer = setTimeout(tick, delay);
         }
-        
-        window.typewriterTimeout = setTimeout(type, 300);
+
+        window._twTimer = setTimeout(tick, 300);
     }
-    
+
+    // ---- 注册 Swup 钩子（只注册一次）----
+    function registerSwupHook() {
+        if (window._twSwupRegistered) return;
+        window._twSwupRegistered = true;
+        window.swup.hooks.on('page:view', startTypewriter);
+        // link:click 时同步显隐（Swup 还未替换内容，但 body class 已更新）
+        window.swup.hooks.on('link:click', syncVisibility);
+    }
+
+    // ---- 入口 ----
+    function main() {
+        startTypewriter();
+        if (window.swup) {
+            registerSwupHook();
+        } else {
+            document.addEventListener('swup:enable', registerSwupHook);
+        }
+    }
+
     if (document.readyState === 'loading') {
-        document.addEventListener("DOMContentLoaded", initTypewriter);
+        document.addEventListener('DOMContentLoaded', main);
     } else {
-        initTypewriter();
+        main();
     }
-    
-    // Support Swup SPA navigation
-    if (window.swup) {
-        window.swup.hooks.on("page:view", initTypewriter);
-    } else {
-        document.addEventListener("swup:enable", () => {
-            window.swup.hooks.on("page:view", initTypewriter);
-        });
-    }
+}());
 </script>
 
 <!-- Main content -->
