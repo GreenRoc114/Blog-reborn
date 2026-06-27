@@ -3,7 +3,7 @@ title: 联想TB-X605FC平板备份&刷机
 published: 2025-06-18 11:10:10
 description: 平板备份刷机
 tags: [备份, 刷机,联想,肠炎]
-category: 瞎折腾
+category: 折腾记录
 draft: false
 ---
 > 这个教程仅仅在*联想TB-X605FC*上测试过，理论上来说只要是骁龙芯片，找对了刷机包和触点就能用

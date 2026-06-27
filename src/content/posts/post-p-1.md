@@ -4,7 +4,7 @@ published: 2025-03-08
 updated: 2025-03-08
 description: '新老博客的简单对比'
 tags: [Demo, Markdown, Blog]
-category: '瞎折腾'
+category: '折腾记录'
 draft: false 
 ---
 

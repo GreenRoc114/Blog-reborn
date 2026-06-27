@@ -3,7 +3,7 @@ title: 成功复活
 published: 2024-04-20
 description: 复活了
 tags: [Markdown, Blogging, Demo,reborn]
-category: 瞎折腾
+category: 折腾记录
 draft: false
 ---
 

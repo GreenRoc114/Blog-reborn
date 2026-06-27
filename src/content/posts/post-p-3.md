@@ -4,7 +4,7 @@ published: 2025-03-11
 updated: 2025-03-11
 description: '添加随机图片api'
 tags: [Markdown, Blog]
-category: '瞎折腾'
+category: '折腾记录'
 draft: false 
 ---
 
