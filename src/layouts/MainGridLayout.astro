@@ -44,14 +44,15 @@ const mainPanelTop = siteConfig.banner.enable ? `calc(${BANNER_HEIGHT}vh - ${MAI
 <!-- Banner / Typewriter Quote -->
 {siteConfig.banner.enable && <div id="banner-wrapper" class="absolute z-10 w-full transition duration-700 overflow-hidden flex items-center justify-center bg-[var(--page-bg)]" style=`top: -${BANNER_HEIGHT_EXTEND}vh`>
     <div id="banner" class="w-full h-full bg-[var(--page-bg)] transition duration-700 opacity-0 scale-105 relative">
-        <!-- 打字机内容区，始终渲染在 DOM 里，JS 控制显隐 -->
-        <div id="typewriter-container" class="w-full h-full flex-col items-center justify-center absolute inset-0 hidden">
+        <div id="typewriter-container"
+             class:list={["w-full h-full absolute inset-0",
+                          isHomePage ? "flex flex-col items-center justify-center" : "hidden"]}>
             <div class="absolute inset-0 bg-[radial-gradient(#C2522D_1px,transparent_1px)] [background-size:16px_16px] opacity-[0.03] pointer-events-none"></div>
-            <span class="text-4xl font-serif text-[var(--primary)] opacity-40 select-none mt-12">“</span>
+            <span class="text-4xl font-serif text-[var(--primary)] opacity-40 select-none mt-12">&ldquo;</span>
             <h2 class="font-serif font-bold italic text-2xl md:text-3xl text-[var(--deep-text)] tracking-wider leading-relaxed min-h-[4rem] flex items-center justify-center text-center">
                 <span id="typed-text"></span><span class="animate-pulse text-[var(--primary)] font-normal ml-0.5 select-none">|</span>
             </h2>
-            <span class="text-4xl font-serif text-[var(--primary)] opacity-40 select-none mt-2">”</span>
+            <span class="text-4xl font-serif text-[var(--primary)] opacity-40 select-none mt-2">&rdquo;</span>
             <div class="mt-4 text-xs font-bold tracking-widest text-[#8E887B] dark:text-[#8A8A87] uppercase font-sans select-none">
                 — GreenRoc's Motto —
             </div>
@@ -61,8 +62,7 @@ const mainPanelTop = siteConfig.banner.enable ? `calc(${BANNER_HEIGHT}vh - ${MAI
 
 <script is:inline>
 (function() {
-    // ---- 状态变量，模块作用域隔离 ----
-    const phrases = [
+    var phrases = [
         "生命不息，折腾不止。",
         "Stay hungry, stay foolish.",
         "Talk is cheap, show me the code.",
@@ -70,63 +70,69 @@ const mainPanelTop = siteConfig.banner.enable ? `calc(${BANNER_HEIGHT}vh - ${MAI
         "Never Gonna Let You Down"
     ];
 
-    // ---- 更新打字机容器的显隐 ----
-    function syncVisibility() {
-        const container = document.getElementById('typewriter-container');
-        if (!container) return;
-        // body 上有 'lg:is-home' 说明当前是首页
-        const isHome = document.body.classList.contains('lg:is-home');
-        if (isHome) {
-            container.style.display = 'flex';
-            container.style.flexDirection = 'column';
-            container.style.alignItems = 'center';
-            container.style.justifyContent = 'center';
-        } else {
-            container.style.display = 'none';
-        }
+    function isHome() {
+        // 双重检测：body class 或 URL 路径
+        var p = window.location.pathname.replace(/^\/|\/$/g, '').toLowerCase();
+        return document.body.classList.contains('lg:is-home') || p === '' || p === 'page/1';
     }
 
-    // ---- 打字机核心逻辑 ----
+    function showContainer() {
+        var c = document.getElementById('typewriter-container');
+        if (!c) return;
+        c.className = c.className.replace(/\bhidden\b/g, '');
+        c.style.display = 'flex';
+        c.style.flexDirection = 'column';
+        c.style.alignItems = 'center';
+        c.style.justifyContent = 'center';
+    }
+
+    function hideContainer() {
+        var c = document.getElementById('typewriter-container');
+        if (!c) return;
+        c.style.display = 'none';
+    }
+
     function startTypewriter() {
-        // 先停掉上一轮
+        // 清掉旧定时器
         if (window._twTimer) {
             clearTimeout(window._twTimer);
             window._twTimer = null;
         }
 
-        syncVisibility();
+        if (!isHome()) {
+            hideContainer();
+            return;
+        }
 
-        // 非首页不启动
-        if (!document.body.classList.contains('lg:is-home')) return;
+        showContainer();
 
-        const el = document.getElementById('typed-text');
+        var el = document.getElementById('typed-text');
         if (!el) return;
 
-        let phraseIndex = 0;
-        let charIndex = 0;
-        let isDeleting = false;
+        var phraseIndex = 0;
+        var charIndex = 0;
+        var deleting = false;
         el.textContent = '';
 
         function tick() {
-            const cur = document.getElementById('typed-text');
-            // 元素已不在 DOM（页面切换了），直接停止
+            var cur = document.getElementById('typed-text');
             if (!cur) return;
 
-            const phrase = phrases[phraseIndex];
-            if (isDeleting) {
-                cur.textContent = phrase.substring(0, charIndex - 1);
+            var phrase = phrases[phraseIndex];
+            if (deleting) {
                 charIndex--;
+                cur.textContent = phrase.substring(0, charIndex);
             } else {
-                cur.textContent = phrase.substring(0, charIndex + 1);
                 charIndex++;
+                cur.textContent = phrase.substring(0, charIndex);
             }
 
-            let delay = isDeleting ? 30 : 100 + Math.random() * 80;
-            if (!isDeleting && charIndex === phrase.length) {
+            var delay = deleting ? 30 : 100 + Math.random() * 80;
+            if (!deleting && charIndex === phrase.length) {
                 delay = 2500;
-                isDeleting = true;
-            } else if (isDeleting && charIndex === 0) {
-                isDeleting = false;
+                deleting = true;
+            } else if (deleting && charIndex === 0) {
+                deleting = false;
                 phraseIndex = (phraseIndex + 1) % phrases.length;
                 delay = 500;
             }
@@ -136,29 +142,21 @@ const mainPanelTop = siteConfig.banner.enable ? `calc(${BANNER_HEIGHT}vh - ${MAI
         window._twTimer = setTimeout(tick, 300);
     }
 
-    // ---- 注册 Swup 钩子（只注册一次）----
-    function registerSwupHook() {
-        if (window._twSwupRegistered) return;
-        window._twSwupRegistered = true;
+    // Swup 钩子只注册一次
+    function registerSwup() {
+        if (window._twSwupDone) return;
+        window._twSwupDone = true;
         window.swup.hooks.on('page:view', startTypewriter);
-        // link:click 时同步显隐（Swup 还未替换内容，但 body class 已更新）
-        window.swup.hooks.on('link:click', syncVisibility);
     }
 
-    // ---- 入口 ----
-    function main() {
-        startTypewriter();
-        if (window.swup) {
-            registerSwupHook();
-        } else {
-            document.addEventListener('swup:enable', registerSwupHook);
-        }
-    }
+    // 首次加载立即启动
+    startTypewriter();
 
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', main);
+    // 注册 Swup
+    if (window.swup) {
+        registerSwup();
     } else {
-        main();
+        document.addEventListener('swup:enable', registerSwup);
     }
 }());
 </script>
