@@ -1,0 +1,79 @@
+---
+import { getSortedPosts } from '../../utils/content-utils';
+
+const posts = await getSortedPosts();
+
+// 显示最近 14 周的热力图（14 * 7 = 98 天）
+// 宽度刚好适合侧边栏
+const WEEKS = 14;
+const today = new Date();
+today.setHours(23, 59, 59, 999);
+
+// 找到 14 周前的周日
+const startDate = new Date(today);
+startDate.setDate(today.getDate() - today.getDay() - (WEEKS - 1) * 7);
+startDate.setHours(0, 0, 0, 0);
+
+const dateCountMap = new Map<string, number>();
+
+// 统计每天的文章数
+posts.forEach(post => {
+    const postDate = new Date(post.data.published);
+    if (postDate >= startDate && postDate <= today) {
+        // 使用本地时间避免时区偏差导致的日期偏移
+        const dateStr = `${postDate.getFullYear()}-${String(postDate.getMonth() + 1).padStart(2, '0')}-${String(postDate.getDate()).padStart(2, '0')}`;
+        dateCountMap.set(dateStr, (dateCountMap.get(dateStr) || 0) + 1);
+    }
+});
+
+const weeks = [];
+let currentDay = new Date(startDate);
+for (let w = 0; w < WEEKS; w++) {
+    const week = [];
+    for (let d = 0; d < 7; d++) {
+        // 如果超出了今天，就不要显示了（或者显示为空）
+        if (currentDay > today) {
+            week.push(null);
+        } else {
+            const dateStr = `${currentDay.getFullYear()}-${String(currentDay.getMonth() + 1).padStart(2, '0')}-${String(currentDay.getDate()).padStart(2, '0')}`;
+            week.push({
+                date: dateStr,
+                count: dateCountMap.get(dateStr) || 0
+            });
+        }
+        currentDay.setDate(currentDay.getDate() + 1);
+    }
+    weeks.push(week);
+}
+
+const levelClass = (count: number) => {
+    if (count === 0) return 'bg-black/5 dark:bg-white/5';
+    if (count === 1) return 'bg-[var(--primary)] opacity-40';
+    if (count === 2) return 'bg-[var(--primary)] opacity-70';
+    return 'bg-[var(--primary)]';
+};
+---
+
+<div class="card-base p-4 onload-animation" style="animation-delay: 250ms">
+    <div class="flex justify-between items-center mb-3">
+        <div class="font-bold text-neutral-700 dark:text-neutral-300 text-sm">写作足迹</div>
+        <div class="text-xs text-neutral-500">最近 14 周</div>
+    </div>
+    
+    <div class="flex gap-[3px] justify-center">
+        {weeks.map(week => (
+            <div class="flex flex-col gap-[3px]">
+                {week.map(day => (
+                    day ? (
+                        <div 
+                            class={`w-[9px] h-[9px] rounded-sm ${levelClass(day.count)} transition-all hover:scale-150 cursor-help hover:z-10 relative hover:ring-2 ring-black/20 dark:ring-white/20`}
+                            title={`${day.date}: ${day.count} 篇文章`}
+                        ></div>
+                    ) : (
+                        <div class="w-[9px] h-[9px] rounded-sm bg-transparent"></div>
+                    )
+                ))}
+            </div>
+        ))}
+    </div>
+</div>

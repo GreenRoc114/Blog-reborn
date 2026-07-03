@@ -1,0 +1,19 @@
+---
+import { getCollection } from 'astro:content';
+
+export const prerender = false;
+
+// 开启 Vercel 边缘缓存 (不用缓存太久，避免总随机到同一篇，这里缓存0秒，每次请求随机)
+Astro.response.headers.set('Cache-Control', 'public, max-age=0, must-revalidate');
+
+const allPosts = await getCollection('posts', ({ data }) => {
+    return import.meta.env.PROD ? data.draft !== true : true;
+});
+
+if (allPosts.length === 0) {
+    return Astro.redirect('/');
+}
+
+const randomPost = allPosts[Math.floor(Math.random() * allPosts.length)];
+return Astro.redirect(`/posts/${randomPost.slug}/`);
+---
