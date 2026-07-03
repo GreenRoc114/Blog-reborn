@@ -1,5 +1,13 @@
 import { $fetch } from 'ofetch';
 import * as cheerio from 'cheerio';
+import { LRUCache } from 'lru-cache';
+
+// 内存缓存：最多存 5 个频道，每条缓存有效 10 分钟
+// 这样每次有人访问博客，不会都去爬一次 Telegram，大大降低延迟
+const cache = new LRUCache<string, ReturnType<typeof getPost>[]>({
+  max: 5,
+  ttl: 10 * 60 * 1000, // 10 分钟
+});
 
 function modifyHTMLContent($, content) {
   $(content).find('.emoji')?.removeAttr('style');
@@ -37,6 +45,12 @@ function getPost($, item, channel) {
 }
 
 export async function fetchTelegramChannel(channel: string) {
+  // 命中缓存直接返回，不用再爬 Telegram
+  const cached = cache.get(channel);
+  if (cached) {
+    return cached;
+  }
+
   const url = `https://t.me/s/${channel}`;
   try {
     const html = await $fetch(url, {
@@ -44,6 +58,7 @@ export async function fetchTelegramChannel(channel: string) {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
       },
       retry: 3,
+      timeout: 8000, // 最多等 8 秒，超时就放弃，不卡死页面
     });
 
     const $ = cheerio.load(html, {}, false);
@@ -51,6 +66,8 @@ export async function fetchTelegramChannel(channel: string) {
       return getPost($, item, channel);
     })?.get()?.reverse().filter(post => post.type === 'text' && post.id && (post.html || post.images.length > 0));
 
+    // 存入缓存
+    cache.set(channel, posts);
     return posts;
   } catch (err) {
     console.error("Failed to fetch telegram channel", err);

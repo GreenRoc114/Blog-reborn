@@ -3,7 +3,7 @@ import Markdown from "@components/misc/Markdown.astro";
 import MainGridLayout from "@layouts/MainGridLayout.astro";
 ---
 
-<script>
+<script type="module">
   // 将早期的页面重定向到 /posts
   const currentPath = window.location.pathname;
   if (!currentPath.startsWith("/posts") && currentPath !== "/404" && currentPath !== "/404/") {

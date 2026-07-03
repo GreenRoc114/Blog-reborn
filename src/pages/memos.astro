@@ -6,6 +6,10 @@ import { Icon } from 'astro-icon/components';
 // Enable SSR for this route!
 export const prerender = false;
 
+// 和主页一样开启 Vercel CDN 缓存（SWR机制）
+// 60 秒强制缓存，随后 10 分钟后台静默更新
+Astro.response.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=600');
+
 // TODO: Replace with actual channel name provided by user
 const channelName = 'greenroc114life';
 const memos = await fetchTelegramChannel(channelName);
