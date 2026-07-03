@@ -72,7 +72,7 @@ const mainPanelTop = siteConfig.banner.enable ? `calc(${BANNER_HEIGHT}vh - ${MAI
 
     function isHome() {
         // 完全依赖服务器与 Layout.astro 同步后的 class
-        return document.body.classList.contains('lg:is-home');
+        return document.body.classList.contains('is-home');
     }
 
     function showContainer() {
