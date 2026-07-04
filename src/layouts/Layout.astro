@@ -79,7 +79,10 @@ const bannerOffset =
 	<head>
 		<link rel="preconnect" href="https://fonts.googleapis.com">
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-		<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&family=Noto+Serif+SC:wght@300;400;500;700&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet">
+		<link rel="preload" href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Serif+SC:wght@400;500;700&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+		<noscript>
+			<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Serif+SC:wght@400;500;700&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet">
+		</noscript>
 
 		<title>{pageTitle}</title>
 
@@ -195,6 +198,14 @@ const bannerOffset =
 	}
 	.navbar-hidden {
 		@apply opacity-0 -translate-y-16
+	}
+	
+	/* PhotoSwipe Lightbox Blur Effect */
+	.pswp__bg {
+		backdrop-filter: blur(8px);
+		-webkit-backdrop-filter: blur(8px);
+		background: rgba(0, 0, 0, 0.4) !important;
+		transition: background 0.3s cubic-bezier(0.4, 0, 0.2, 1), backdrop-filter 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 	}
 }
 </style>
@@ -508,6 +519,8 @@ function createPhotoSwipe() {
 		imageClickAction: 'close',
 		tapAction: 'close',
 		doubleTapAction: 'zoom',
+		bgOpacity: 0.8,
+		showHideAnimationType: 'zoom',
 	})
 
 	lightbox.addFilter("domItemData", (itemData, element) => {
