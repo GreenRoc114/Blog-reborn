@@ -1,0 +1,130 @@
+---
+---
+<!-- 磁吸感应指针的 DOM 结构 -->
+<div id="cursor-dot" class="pointer-events-none fixed top-0 left-0 z-[99999] w-2 h-2 -ml-1 -mt-1 rounded-full bg-[var(--primary)] hidden lg:block transition-opacity duration-300"></div>
+<div id="cursor-ring" class="pointer-events-none fixed top-0 left-0 z-[99998] w-8 h-8 -ml-4 -mt-4 rounded-full border-2 border-[var(--primary)] opacity-50 hidden lg:block box-border transition-opacity duration-300"></div>
+
+<style is:global>
+    /* 仅在支持精确指针的设备（电脑）上隐藏默认鼠标 */
+    @media (pointer: fine) {
+        body.custom-cursor-active,
+        body.custom-cursor-active * {
+            cursor: none !important;
+        }
+    }
+    
+    /* 悬停到可交互元素时的样式变化 */
+    #cursor-ring.hovering {
+        background-color: var(--primary);
+        opacity: 0.2;
+        border-color: transparent;
+        /* 大小变化通过 JS 的 transform 控制以保证动画流畅 */
+    }
+    
+    #cursor-dot.hovering {
+        opacity: 0;
+    }
+</style>
+
+<script is:inline>
+(function() {
+    function initCursor() {
+        // 如果是触摸设备（手机/平板），直接退出，保留原生体验
+        if (window.matchMedia("(pointer: coarse)").matches) return;
+
+        const dot = document.getElementById('cursor-dot');
+        const ring = document.getElementById('cursor-ring');
+        if (!dot || !ring) return;
+
+        // 激活自定义鼠标，隐藏原生鼠标
+        document.body.classList.add('custom-cursor-active');
+
+        let mouseX = window.innerWidth / 2;
+        let mouseY = window.innerHeight / 2;
+        let ringX = mouseX;
+        let ringY = mouseY;
+        let isHovering = false;
+
+        // 线性插值算法（Lerp），实现平滑跟随的"拖尾"阻尼感
+        const lerp = (a, b, n) => (1 - n) * a + n * b;
+
+        const updateCursor = () => {
+            // 中心点实时跟随
+            dot.style.transform = `translate3d(${mouseX}px, ${mouseY}px, 0)`;
+
+            // 外圈平滑跟随，带有 0.15 的阻尼系数
+            ringX = lerp(ringX, mouseX, 0.15);
+            ringY = lerp(ringY, mouseY, 0.15);
+            
+            // 如果处于悬停状态，外圈放大 1.5 倍
+            const scale = isHovering ? 'scale(1.5)' : 'scale(1)';
+            ring.style.transform = `translate3d(${ringX}px, ${ringY}px, 0) ${scale}`;
+
+            requestAnimationFrame(updateCursor);
+        };
+
+        requestAnimationFrame(updateCursor);
+
+        window.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+        });
+
+        // 绑定悬停事件
+        const bindHoverEvents = () => {
+            // 找到页面上所有可以交互的元素
+            const interactables = document.querySelectorAll('a, button, input, textarea, select, .cursor-pointer, [role="button"], summary');
+            
+            interactables.forEach((el) => {
+                // 避免重复绑定
+                if (el.dataset.cursorBound) return;
+                el.dataset.cursorBound = 'true';
+
+                el.addEventListener('mouseenter', () => {
+                    isHovering = true;
+                    ring.classList.add('hovering');
+                    dot.classList.add('hovering');
+                });
+                
+                el.addEventListener('mouseleave', () => {
+                    isHovering = false;
+                    ring.classList.remove('hovering');
+                    dot.classList.remove('hovering');
+                });
+            });
+        };
+
+        // 初始绑定
+        setTimeout(bindHoverEvents, 500); // 稍微延迟以确保 DOM 渲染完毕
+
+        // 配合 Swup 页面无刷新跳转，重新绑定新页面的元素
+        if (window.swup) {
+            window.swup.hooks.on('page:view', () => {
+                setTimeout(bindHoverEvents, 200);
+                document.body.classList.add('custom-cursor-active');
+            });
+        }
+        
+        // 鼠标移出浏览器窗口时隐藏，移入时显示
+        document.addEventListener('mouseleave', () => {
+            dot.style.opacity = '0';
+            ring.style.opacity = '0';
+        });
+        document.addEventListener('mouseenter', () => {
+            dot.style.opacity = '1';
+            ring.style.opacity = '0.5';
+        });
+    }
+
+    // 确保只初始化一次
+    if (!window._cursorInitialized) {
+        window._cursorInitialized = true;
+        // 等待 DOM 加载完成后执行
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initCursor);
+        } else {
+            initCursor();
+        }
+    }
+})();
+</script>
