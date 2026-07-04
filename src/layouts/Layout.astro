@@ -209,6 +209,39 @@ const bannerOffset =
 		background: rgba(0, 0, 0, 0.4) !important;
 		transition: background 0.3s cubic-bezier(0.4, 0, 0.2, 1), backdrop-filter 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 	}
+
+	/* Zen Mode */
+	body.zen-mode #navbar-wrapper,
+	body.zen-mode #banner-wrapper,
+	body.zen-mode #sidebar,
+	body.zen-mode #toc-wrapper,
+	body.zen-mode .footer,
+	body.zen-mode .next-prev-nav,
+	body.zen-mode .comments-section,
+	body.zen-mode .license-container,
+	body.zen-mode #post-cover {
+		opacity: 0.15;
+		filter: grayscale(100%);
+		pointer-events: none;
+		transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), filter 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+	}
+	body:not(.zen-mode) #navbar-wrapper,
+	body:not(.zen-mode) #banner-wrapper,
+	body:not(.zen-mode) #sidebar,
+	body:not(.zen-mode) #toc-wrapper,
+	body:not(.zen-mode) .footer,
+	body:not(.zen-mode) .next-prev-nav,
+	body:not(.zen-mode) .comments-section,
+	body:not(.zen-mode) .license-container,
+	body:not(.zen-mode) #post-cover {
+		transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), filter 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+	}
+
+	/* 3D Tilt Card */
+	.tilt-card {
+		transform-style: preserve-3d;
+		/* transition is handled via JS */
+	}
 }
 </style>
 
