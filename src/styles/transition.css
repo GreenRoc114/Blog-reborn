@@ -1,6 +1,6 @@
 /* Page transition animations with Swup */
 html.is-changing .transition-swup-fade {
-    @apply transition-all duration-200
+    @apply transition-all duration-150
 }
 html.is-animating .transition-swup-fade {
     @apply opacity-0 translate-y-4
@@ -21,8 +21,9 @@ html.is-animating .transition-swup-fade {
 /* Main components */
 .onload-animation {
     opacity: 0;
-    animation: 300ms fade-in-up;
+    animation: 250ms fade-in-up;
     animation-fill-mode: forwards;
+    will-change: transform, opacity;
 }
 #navbar {
     animation-delay: 0ms
