@@ -597,3 +597,69 @@ if (window.swup) {
 	document.addEventListener("swup:enable", setup)
 }
 </script>
+
+<script>
+// Tilt Card singleton — 只在 Layout 级别注册一次，避免 PostCard 多实例重复注册导致卡顿
+(function () {
+    if (window._tiltInitialized) return;
+    window._tiltInitialized = true;
+
+    const isTouchDevice = window.matchMedia('(pointer: coarse)').matches;
+    if (isTouchDevice) return;
+
+    function bindTiltCards() {
+        document.querySelectorAll<HTMLElement>('.tilt-card').forEach((card) => {
+            if (card.dataset.tiltBound) return;
+            card.dataset.tiltBound = 'true';
+
+            card.addEventListener('mouseenter', () => {
+                card.style.transition = 'transform 0.1s cubic-bezier(0.4,0,0.2,1)';
+            });
+
+            card.addEventListener('mousemove', (e: MouseEvent) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                const rx = ((y - rect.height / 2) / (rect.height / 2)) * -3;
+                const ry = ((x - rect.width / 2) / (rect.width / 2)) * 3;
+                card.style.transition = 'none';
+                card.style.transform = `perspective(1000px) rotateX(${rx}deg) rotateY(${ry}deg) scale3d(1.01,1.01,1.01)`;
+            });
+
+            card.addEventListener('mouseleave', () => {
+                card.style.transition = 'transform 0.5s cubic-bezier(0.4,0,0.2,1)';
+                card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1,1,1)';
+            });
+        });
+    }
+
+    // 首次绑定
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', bindTiltCards);
+    } else {
+        bindTiltCards();
+    }
+
+    // Swup 换页后重新绑定新渲染的卡片
+    function registerSwupTilt() {
+        window.swup.hooks.on('page:view', () => {
+            // 新页面的卡片没有 tiltBound，可以直接 bind
+            bindTiltCards();
+        });
+        // 换页前把旧卡片的 bound 标记和内联 transform 清除，防止积累
+        window.swup.hooks.on('content:replace', () => {
+            document.querySelectorAll<HTMLElement>('.tilt-card').forEach((card) => {
+                card.style.transform = '';
+                card.style.transition = '';
+                delete card.dataset.tiltBound;
+            });
+        }, { before: true });
+    }
+
+    if (window.swup) {
+        registerSwupTilt();
+    } else {
+        document.addEventListener('swup:enable', registerSwupTilt);
+    }
+}());
+</script>

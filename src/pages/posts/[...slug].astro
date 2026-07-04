@@ -66,7 +66,7 @@ const jsonLd = {
                 </div>
 
                 <!-- Zen Mode Toggle Button -->
-                <button id="zen-mode-toggle" class="ml-auto transition flex flex-row items-center gap-1.5 px-3 py-1.5 rounded-lg bg-black/5 dark:bg-white/10 text-black/50 dark:text-white/50 hover:bg-[var(--primary)] hover:text-white dark:hover:bg-[var(--primary)] dark:hover:text-white active:scale-95" title="沉浸式阅读">
+                <button id="zen-mode-toggle" data-zen="off" class="ml-auto transition flex flex-row items-center gap-1.5 px-3 py-1.5 rounded-lg bg-black/5 dark:bg-white/10 text-black/50 dark:text-white/50 hover:bg-[oklch(0.65_0.2_var(--hue))] hover:text-white dark:hover:bg-[oklch(0.65_0.2_var(--hue))] dark:hover:text-white active:scale-95" title="沉浸式阅读">
                     <Icon name="material-symbols:visibility-outline-rounded" class="text-lg"></Icon>
                     <span class="text-sm font-bold">禅定模式</span>
                 </button>
@@ -141,32 +141,56 @@ const jsonLd = {
     </div>
 </MainGridLayout>
 
+<style is:global>
+    #zen-mode-toggle[data-zen="on"] {
+        background-color: oklch(0.65 0.2 var(--hue));
+        color: white;
+    }
+</style>
+
 <script is:inline>
+(function() {
     function initZenMode() {
-        const toggleBtn = document.getElementById('zen-mode-toggle');
-        if (!toggleBtn) return;
+        var btn = document.getElementById('zen-mode-toggle');
+        if (!btn || btn.dataset.zenBound) return;
+        btn.dataset.zenBound = 'true';
 
-        // Reset zen mode on page load
+        // 每次进入文章页，重置禅定状态
         document.body.classList.remove('zen-mode');
+        btn.dataset.zen = 'off';
+        btn.querySelector('span').textContent = '禅定模式';
 
-        toggleBtn.addEventListener('click', () => {
-            document.body.classList.toggle('zen-mode');
-            const isZen = document.body.classList.contains('zen-mode');
-            const icon = toggleBtn.querySelector('svg');
-            const text = toggleBtn.querySelector('span');
-            
-            if (isZen) {
-                text.textContent = '退出禅定';
-                toggleBtn.classList.add('bg-[var(--primary)]', 'text-white');
-            } else {
-                text.textContent = '禅定模式';
-                toggleBtn.classList.remove('bg-[var(--primary)]', 'text-white');
-            }
+        btn.addEventListener('click', function() {
+            var isZen = document.body.classList.toggle('zen-mode');
+            btn.dataset.zen = isZen ? 'on' : 'off';
+            btn.querySelector('span').textContent = isZen ? '退出禅定' : '禅定模式';
         });
     }
 
-    document.addEventListener('DOMContentLoaded', initZenMode);
-    if (window.swup) {
-        window.swup.hooks.on('page:view', initZenMode);
+    // 首次加载
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initZenMode);
+    } else {
+        initZenMode();
     }
+
+    // Swup 换页后重新绑定
+    if (window._zenSwupDone) return;
+    window._zenSwupDone = true;
+    
+    function registerSwupZen() {
+        window.swup.hooks.on('page:view', function() {
+            // 换页后按钮是新的 DOM，重置 bound 标记
+            var btn = document.getElementById('zen-mode-toggle');
+            if (btn) delete btn.dataset.zenBound;
+            initZenMode();
+        });
+    }
+
+    if (window.swup) {
+        registerSwupZen();
+    } else {
+        document.addEventListener('swup:enable', registerSwupZen);
+    }
+}());
 </script>
