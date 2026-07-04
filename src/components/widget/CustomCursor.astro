@@ -7,8 +7,17 @@
 <style is:global>
     /* 仅在支持精确指针的设备（电脑）上隐藏默认鼠标 */
     @media (pointer: fine) {
-        body.custom-cursor-active,
-        body.custom-cursor-active * {
+        body.custom-cursor-active {
+            cursor: none !important;
+        }
+        /* 只给会显示手形指针的元素设置 cursor:none，避免 * 通配符的性能开销 */
+        body.custom-cursor-active a,
+        body.custom-cursor-active button,
+        body.custom-cursor-active input,
+        body.custom-cursor-active textarea,
+        body.custom-cursor-active select,
+        body.custom-cursor-active summary,
+        body.custom-cursor-active [role="button"] {
             cursor: none !important;
         }
     }

@@ -51,9 +51,9 @@ export default defineConfig({
     icon({
       include: {
         'preprocess: vitePreprocess(),': ['*'],
-        'fa6-brands': ['*'],
-        'fa6-regular': ['*'],
-        'fa6-solid': ['*'],
+        'fa6-brands': ['creative-commons', 'telegram', 'bilibili', 'github'],
+        'fa6-regular': ['address-card', 'clock'],
+        'fa6-solid': ['arrow-up-right-from-square', 'comment-dots', 'dice', 'rss'],
       },
     }),
     svelte(),
