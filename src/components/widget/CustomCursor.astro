@@ -92,6 +92,25 @@
                     dot.classList.remove('hovering');
                 });
             });
+
+            // 处理 iframe (如 Giscus 评论区) 的情况：
+            // 因为跨域安全限制，JS 无法捕获 iframe 内的鼠标移动，系统原生鼠标会出现。
+            // 此时我们应该优雅地隐藏自定义指针，避免两个指针同时出现或者自定义指针卡在边缘。
+            // 这里我们不仅监听 iframe，也监听 giscus 的外部容器，确保能准确隐藏。
+            const iframes = document.querySelectorAll('iframe, #giscus-wrapper');
+            iframes.forEach((iframe) => {
+                if (iframe.dataset.cursorBound) return;
+                iframe.dataset.cursorBound = 'true';
+
+                iframe.addEventListener('mouseenter', () => {
+                    dot.style.opacity = '0';
+                    ring.style.opacity = '0';
+                });
+                iframe.addEventListener('mouseleave', () => {
+                    dot.style.opacity = '1';
+                    ring.style.opacity = '0.5';
+                });
+            });
         };
 
         // 初始绑定
