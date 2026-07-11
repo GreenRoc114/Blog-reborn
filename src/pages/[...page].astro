@@ -4,91 +4,27 @@ import Pagination from '../components/control/Pagination.astro'
 import { PAGE_SIZE } from '../constants/constants'
 import MainGridLayout from '../layouts/MainGridLayout.astro'
 import { getSortedPosts } from '../utils/content-utils'
-import { fetchTelegramChannel } from '../utils/telegram'
 
-export const prerender = false;
-
-// 第一步：先做重定向判断，避免后面浪费性能拉取数据
-const paramPage = Astro.params.page;
-let currentPage = 1;
-
-if (paramPage !== undefined && paramPage !== '') {
-    // 重定向旧版 /posts/ 分页路径
-    if (paramPage === 'posts' || paramPage === 'posts/') {
-        return Astro.redirect('/');
-    }
-    if (paramPage.startsWith('posts/')) {
-        const rest = paramPage.slice(6);
-        if (/^\d+$/.test(rest)) {
-            return Astro.redirect(`/${rest}`);
-        }
-    }
-
-    // /1 重定向到根路径，避免重复内容
-    if (paramPage === '1') {
-        return Astro.redirect('/');
-    }
-
-    // 非合法数字路径，说明是被 catch-all 捕获的无效 URL
-    if (!/^\d+$/.test(paramPage)) {
-        return Astro.redirect('/404');
-    }
-
-    currentPage = parseInt(paramPage, 10);
-    if (isNaN(currentPage) || currentPage < 1) {
-        return Astro.redirect('/404');
-    }
+// 首页改为构建时静态生成：不再在 TTFB 关键路径上抓取 Telegram
+export async function getStaticPaths({ paginate }) {
+  const allBlogPosts = await getSortedPosts()
+  return paginate(allBlogPosts, { pageSize: PAGE_SIZE })
 }
 
-// 第二步：重定向确认不触发，才开始拉取数据
-// 开启 Vercel 边缘缓存 (SWR机制)
-// s-maxage=60: 强制缓存 60 秒
-// stale-while-revalidate=600: 在随后的 10 分钟内，如果有用户访问，先秒回旧缓存，同时在后台偷偷抓取新数据更新缓存
-Astro.response.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=600');
+const { page } = Astro.props
 
-const allBlogPosts = await getSortedPosts();
-const typedPosts = allBlogPosts.map(p => ({ ...p, _type: 'post' }));
-
-const memos = await fetchTelegramChannel('greenroc114life');
-const typedMemos = memos.map(m => ({ ...m, _type: 'memo' }));
-
-// 合并后按时间降序，置顶文章放最前面
-const combinedItems = [...typedPosts, ...typedMemos].sort((a, b) => {
-    const pinnedA = (a._type === 'post' && a.data.pinned) ? 1 : 0;
-    const pinnedB = (b._type === 'post' && b.data.pinned) ? 1 : 0;
-    if (pinnedA !== pinnedB) {
-        return pinnedB - pinnedA;
-    }
-
-    const dateA = a._type === 'post' ? new Date(a.data.published) : new Date(a.datetime);
-    const dateB = b._type === 'post' ? new Date(b.data.published) : new Date(b.datetime);
-    return dateB.getTime() - dateA.getTime();
-});
-
-const totalItems = combinedItems.length;
-const lastPage = Math.ceil(totalItems / PAGE_SIZE) || 1;
-if (currentPage > lastPage) {
-    return Astro.redirect(`/${lastPage}/`);
+// 兼容 PostPage：仅文章时间线（碎碎念改由 /memos 客户端拉取）
+const viewPage = {
+  data: page.data.map((p: any) => ({ ...p, _type: 'post' as const })),
+  currentPage: page.currentPage,
+  lastPage: page.lastPage,
+  url: page.url,
 }
 
-const startIndex = (currentPage - 1) * PAGE_SIZE;
-const endIndex = startIndex + PAGE_SIZE;
-const paginatedData = combinedItems.slice(startIndex, endIndex);
-
-const page = {
-    data: paginatedData,
-    currentPage: currentPage,
-    lastPage: lastPage,
-    url: {
-        prev: currentPage > 1 ? (currentPage === 2 ? '/' : `/${currentPage - 1}/`) : undefined,
-        next: currentPage < lastPage ? `/${currentPage + 1}/` : undefined
-    }
-}
-
-const len = page.data.length
+const len = viewPage.data.length
 ---
 
-<MainGridLayout isHomePage={currentPage === 1}>
-    <PostPage page={page}></PostPage>
-    <Pagination class="mx-auto onload-animation" page={page} style=`animation-delay: calc(var(--content-delay) + ${(len)*50}ms)`></Pagination>
+<MainGridLayout isHomePage={page.currentPage === 1}>
+    <PostPage page={viewPage}></PostPage>
+    <Pagination class="mx-auto onload-animation" page={page} style={`animation-delay: calc(var(--content-delay) + ${len * 50}ms)`}></Pagination>
 </MainGridLayout>

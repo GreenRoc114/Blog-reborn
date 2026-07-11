@@ -24,19 +24,25 @@ const isPublic = src.startsWith('/')
 
 // TODO temporary workaround for images dynamic import
 // https://github.com/withastro/astro/issues/3373
+// 只扫描图片目录，避免 import.meta.glob('../../**') 把整个 src 卷进 SSR bundle
 let img
 if (isLocal) {
-  const files = import.meta.glob<ImageMetadata>('../../**', {
-    import: 'default',
-  })
+  const files = import.meta.glob<ImageMetadata>(
+    [
+      '../../assets/**/*.{jpeg,jpg,png,gif,webp,avif,svg}',
+      '../../content/**/*.{jpeg,jpg,png,gif,webp,avif,svg}',
+    ],
+    { import: 'default' },
+  )
   let normalizedPath = path
     .normalize(path.join('../../', basePath, src))
     .replace(/\\/g, '/')
   const file = files[normalizedPath]
   if (!file) {
     console.error(`\n[ERROR] Image file not found: ${normalizedPath.replace('../../', 'src/')}`)
+  } else {
+    img = await file()
   }
-  img = await file()
 }
 
 const imageClass = 'w-full h-full object-cover'

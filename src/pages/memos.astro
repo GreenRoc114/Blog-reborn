@@ -1,18 +1,9 @@
 ---
-import MainGridLayout from '../layouts/MainGridLayout.astro';
-import { fetchTelegramChannel } from '../utils/telegram';
-import { Icon } from 'astro-icon/components';
+import MainGridLayout from '../layouts/MainGridLayout.astro'
+import { Icon } from 'astro-icon/components'
 
-// Enable SSR for this route!
-export const prerender = false;
-
-// 和主页一样开启 Vercel CDN 缓存（SWR机制）
-// 60 秒强制缓存，随后 10 分钟后台静默更新
-Astro.response.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=600');
-
-// TODO: Replace with actual channel name provided by user
-const channelName = 'greenroc114life';
-const memos = await fetchTelegramChannel(channelName);
+// 静态壳 + 客户端拉取 API，避免整页 SSR 等 Telegram
+const channelName = 'greenroc114life'
 ---
 
 <MainGridLayout title="碎碎念" description="日常想法与动态">
@@ -29,44 +20,133 @@ const memos = await fetchTelegramChannel(channelName);
                     <span class="font-bold">实时同步</span>
                 </div>
             </div>
-            
-            <div class="flex flex-col gap-6">
-                {memos.length === 0 && (
-                    <div class="text-center text-neutral-400 py-10">
-                        正在连接 Telegram 卫星，或者暂时没有内容...
-                    </div>
-                )}
-                
-                {memos.map(memo => (
-                    <div class="border border-[var(--line-divider)] rounded-2xl p-5 hover:bg-black/5 dark:hover:bg-white/5 transition-colors shadow-sm">
-                        <div class="flex items-center gap-2 mb-3 text-sm text-neutral-500">
-                            <Icon name="fa6-regular:clock" />
-                            <time datetime={memo.datetime}>
-                                {new Date(memo.datetime).toLocaleString('zh-CN', {
-                                    year: 'numeric', month: '2-digit', day: '2-digit', 
-                                    hour: '2-digit', minute: '2-digit'
-                                })}
-                            </time>
-                            <a href={`https://t.me/${channelName}/${memo.id}`} target="_blank" rel="noopener noreferrer" class="ml-auto hover:text-[var(--primary)] transition flex items-center gap-1 bg-blue-500/10 text-blue-500 px-2 py-0.5 rounded-md font-bold text-xs">
-                                <Icon name="fa6-brands:telegram" class="text-sm" />
-                                来源
-                            </a>
-                        </div>
-                        
-                        <div class="custom-md prose dark:prose-invert max-w-none text-sm md:text-[0.95rem] leading-loose mb-3 break-words" set:html={memo.html}></div>
-                        
-                        {memo.images && memo.images.length > 0 && (
-                            <div class={`custom-md grid gap-2 ${memo.images.length > 1 ? 'grid-cols-2' : 'grid-cols-1'} mt-3`}>
-                                {memo.images.map(img => (
-                                    <a href={img.replace('&w=800', '')} target="_blank" rel="noopener noreferrer" class="overflow-hidden rounded-xl border border-[var(--line-divider)] block">
-                                        <img src={img} alt="Telegram Media" class="w-full h-auto object-cover hover:scale-105 transition-transform duration-500" loading="lazy" />
-                                    </a>
-                                ))}
-                            </div>
-                        )}
-                    </div>
-                ))}
+
+            <div id="memos-root" class="flex flex-col gap-6" data-channel={channelName}>
+                <div id="memos-loading" class="text-center text-neutral-400 py-10">
+                    正在连接 Telegram 卫星…
+                </div>
+                <div id="memos-empty" class="hidden text-center text-neutral-400 py-10">
+                    暂时没有内容，稍后再来看看吧。
+                </div>
+                <div id="memos-error" class="hidden text-center text-red-400/80 py-10">
+                    加载失败，请刷新重试。
+                </div>
+                <div id="memos-list" class="flex flex-col gap-6"></div>
             </div>
         </div>
     </div>
 </MainGridLayout>
+
+<script is:inline>
+(function () {
+    function escapeHtml(str) {
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;');
+    }
+
+    function formatTime(iso) {
+        try {
+            return new Date(iso).toLocaleString('zh-CN', {
+                year: 'numeric', month: '2-digit', day: '2-digit',
+                hour: '2-digit', minute: '2-digit',
+                timeZone: 'Asia/Shanghai',
+            });
+        } catch (_) {
+            return iso || '';
+        }
+    }
+
+    function renderMemo(memo, channelName) {
+        var imagesHtml = '';
+        if (memo.images && memo.images.length > 0) {
+            var cols = memo.images.length > 1 ? 'grid-cols-2' : 'grid-cols-1';
+            imagesHtml = '<div class="custom-md grid gap-2 ' + cols + ' mt-3">' +
+                memo.images.map(function (img) {
+                    var full = String(img).replace('&w=800', '');
+                    return '<a href="' + escapeHtml(full) + '" target="_blank" rel="noopener noreferrer" class="overflow-hidden rounded-xl border border-[var(--line-divider)] block">' +
+                        '<img src="' + escapeHtml(img) + '" alt="Telegram Media" class="w-full h-auto object-cover hover:scale-105 transition-transform duration-500" loading="lazy" />' +
+                        '</a>';
+                }).join('') +
+                '</div>';
+        }
+
+        // memo.html 来自服务端 sanitize 过的 Telegram 片段，保持与原先 set:html 一致
+        return (
+            '<div class="border border-[var(--line-divider)] rounded-2xl p-5 hover:bg-black/5 dark:hover:bg-white/5 transition-colors shadow-sm">' +
+                '<div class="flex items-center gap-2 mb-3 text-sm text-neutral-500">' +
+                    '<time datetime="' + escapeHtml(memo.datetime || '') + '">' + escapeHtml(formatTime(memo.datetime)) + '</time>' +
+                    '<a href="https://t.me/' + encodeURIComponent(channelName) + '/' + encodeURIComponent(memo.id) + '" target="_blank" rel="noopener noreferrer" class="ml-auto hover:text-[var(--primary)] transition flex items-center gap-1 bg-blue-500/10 text-blue-500 px-2 py-0.5 rounded-md font-bold text-xs">来源</a>' +
+                '</div>' +
+                '<div class="custom-md prose dark:prose-invert max-w-none text-sm md:text-[0.95rem] leading-loose mb-3 break-words">' + (memo.html || '') + '</div>' +
+                imagesHtml +
+            '</div>'
+        );
+    }
+
+    async function loadMemos() {
+        var root = document.getElementById('memos-root');
+        if (!root || root.dataset.loaded === '1') return;
+        root.dataset.loaded = '1';
+
+        var channelName = root.dataset.channel || 'greenroc114life';
+        var loading = document.getElementById('memos-loading');
+        var empty = document.getElementById('memos-empty');
+        var error = document.getElementById('memos-error');
+        var list = document.getElementById('memos-list');
+
+        try {
+            var res = await fetch('/api/memos.json', { headers: { Accept: 'application/json' } });
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            var data = await res.json();
+            var memos = (data && data.memos) || [];
+
+            if (loading) loading.classList.add('hidden');
+
+            if (!memos.length) {
+                if (empty) empty.classList.remove('hidden');
+                return;
+            }
+
+            if (list) {
+                list.innerHTML = memos.map(function (m) {
+                    return renderMemo(m, channelName);
+                }).join('');
+            }
+        } catch (e) {
+            if (loading) loading.classList.add('hidden');
+            if (error) error.classList.remove('hidden');
+            console.error('Failed to load memos', e);
+        }
+    }
+
+    function boot() {
+        // 允许 Swup 再次进入时重新拉取
+        var root = document.getElementById('memos-root');
+        if (root) delete root.dataset.loaded;
+        loadMemos();
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', boot);
+    } else {
+        boot();
+    }
+
+    function registerSwup() {
+        if (window._memosSwupDone) return;
+        window._memosSwupDone = true;
+        window.swup.hooks.on('page:view', function () {
+            if (document.getElementById('memos-root')) boot();
+        });
+    }
+
+    if (window.swup) {
+        registerSwup();
+    } else {
+        document.addEventListener('swup:enable', registerSwup);
+    }
+})();
+</script>
