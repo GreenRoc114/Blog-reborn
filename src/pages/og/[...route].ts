@@ -28,12 +28,12 @@ export const { getStaticPaths, GET } = OGImageRoute({
     font: {
       title: {
         color: [20, 20, 20],
-        families: ['Noto Serif SC', 'JetBrains Mono'],
+        families: ['Noto Serif SC ExtraLight', 'JetBrains Mono'],
         weight: 'Bold',
       },
       description: {
         color: [80, 80, 80],
-        families: ['Noto Serif SC', 'JetBrains Mono'],
+        families: ['Noto Serif SC ExtraLight', 'JetBrains Mono'],
       },
     },
   }),
