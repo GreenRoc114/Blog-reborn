@@ -17,7 +17,7 @@ export const { getStaticPaths, GET } = OGImageRoute({
     border: { color: [245, 244, 237], width: 20 },
     padding: 80,
     logo: {
-      path: 'https://q1.qlogo.cn/g?b=qq&nk=3310149631@qq.com&s=640',
+      path: './src/assets/avatar.jpg',
       size: [80],
     },
     fonts: [
