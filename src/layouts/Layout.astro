@@ -1,6 +1,4 @@
 ---
-import '@fontsource-variable/jetbrains-mono'
-
 // 全局样式必须显式引入；此前依赖 ImageWrapper 的 import.meta.glob('../../**') 误打误撞打包，收窄 glob 后会整站失样式
 import '../styles/variables.styl'
 import '../styles/main.css'
@@ -35,9 +33,11 @@ interface Props {
   lang?: string
   setOGTypeArticle?: boolean
   isHomePage?: boolean
+  /** 仅含公式的页面再加载 KaTeX CSS */
+  loadKatex?: boolean
 }
 
-let { title, banner, description, lang, setOGTypeArticle, isHomePage } = Astro.props
+let { title, banner, description, lang, setOGTypeArticle, isHomePage, loadKatex = false } = Astro.props
 
 // apply a class to the body element to decide the height of the banner, only used for initial page load
 // Swup can update the body for each page visit, but it's after the page transition, causing a delay for banner height change
@@ -88,9 +88,10 @@ const bannerOffset =
 	<head>
 		<link rel="preconnect" href="https://fonts.googleapis.com">
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-		<link rel="preload" href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Serif+SC:wght@400;500;700&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+		<!-- 字体减重：去掉用不到的斜体/中间字重，中文站以 Noto Serif SC 为主 -->
+		<link rel="preload" href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,700;1,400&family=Noto+Serif+SC:wght@400;700&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
 		<noscript>
-			<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Serif+SC:wght@400;500;700&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet">
+			<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,700;1,400&family=Noto+Serif+SC:wght@400;700&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
 		</noscript>
 
 		<title>{pageTitle}</title>
@@ -160,10 +161,14 @@ const bannerOffset =
 
 		<slot name="head"></slot>
 
-		<link rel="preload" href="https://assets.5t5.top/cdn/katex/0.16.9/katex.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'" integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
-		<noscript>
-			<link rel="stylesheet" href="https://assets.5t5.top/cdn/katex/0.16.9/katex.min.css" integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
-		</noscript>
+		{loadKatex && (
+			<>
+				<link rel="preload" href="https://assets.5t5.top/cdn/katex/0.16.9/katex.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'" integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
+				<noscript>
+					<link rel="stylesheet" href="https://assets.5t5.top/cdn/katex/0.16.9/katex.min.css" integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
+				</noscript>
+			</>
+		)}
 
 		<link rel="alternate" type="application/rss+xml" title={profileConfig.name} href={`${Astro.site}rss.xml`}/>
 	</head>

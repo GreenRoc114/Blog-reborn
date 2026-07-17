@@ -28,6 +28,9 @@ export async function getStaticPaths() {
 const { entry } = Astro.props
 const { Content, headings, remarkPluginFrontmatter } = await entry.render()
 
+// 仅正文含公式时加载 KaTeX CSS
+const loadKatex = /\$\$|\\\(|\\\[|\\begin\{/.test(entry.body || '')
+
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'BlogPosting',
@@ -44,7 +47,7 @@ const jsonLd = {
   // TODO include cover image here
 }
 ---
-<MainGridLayout banner={entry.data.image} title={entry.data.title} description={entry.data.description} lang={entry.data.lang} setOGTypeArticle={true} headings={headings}>
+<MainGridLayout banner={entry.data.image} title={entry.data.title} description={entry.data.description} lang={entry.data.lang} setOGTypeArticle={true} headings={headings} loadKatex={loadKatex}>
     <script is:inline slot="head" type="application/ld+json" set:html={JSON.stringify(jsonLd)}></script>
     <meta slot="head" property="og:image" content={new URL(`/og/${entry.slug}.png`, Astro.url)} />
     <meta slot="head" name="twitter:image" content={new URL(`/og/${entry.slug}.png`, Astro.url)} />
