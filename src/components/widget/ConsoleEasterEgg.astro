@@ -1,0 +1,109 @@
+---
+---
+<script is:inline>
+(function () {
+  if (window._consoleEggDone) return;
+  window._consoleEggDone = true;
+
+  var styleTitle =
+    'font-size:20px;font-weight:900;color:#C2522D;font-family:Georgia,"Noto Serif SC",serif;';
+  var styleMuted = 'color:#8E887B;font-size:12px;';
+  var styleCode = 'color:#1F1E1B;background:#F8F3E3;padding:2px 6px;border-radius:4px;font-family:ui-monospace,monospace;';
+
+  try {
+    console.log(
+      '%cLookSky%c · GreenRoc',
+      styleTitle,
+      'font-size:14px;color:#8E887B;font-weight:600;'
+    );
+    console.log(
+      '%c生命不息，折腾不止。',
+      'font-size:13px;font-style:italic;color:#C2522D;'
+    );
+    console.log(
+      '%c既然你打开了控制台，说明你也是会折腾的人。\n仓库: %chttps://github.com/GreenRoc114/Blog-reborn',
+      styleMuted,
+      styleCode
+    );
+    console.log(
+      '%c小提示: 在页面上连按 ↑↑↓↓←→←→BA 有彩蛋。',
+      styleMuted
+    );
+  } catch (_) {}
+
+  // Konami 码：短暂彩虹色相扫过
+  var seq = [
+    'ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown',
+    'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight',
+    'b', 'a',
+  ];
+  var idx = 0;
+  var coolUntil = 0;
+
+  window.addEventListener(
+    'keydown',
+    function (e) {
+      if (Date.now() < coolUntil) return;
+      var key = e.key.length === 1 ? e.key.toLowerCase() : e.key;
+      var expect = seq[idx];
+      var expectNorm = expect.length === 1 ? expect.toLowerCase() : expect;
+
+      if (key === expectNorm) {
+        idx++;
+        if (idx === seq.length) {
+          idx = 0;
+          coolUntil = Date.now() + 8000;
+          runRainbow();
+        }
+      } else {
+        idx = key === (seq[0].length === 1 ? seq[0].toLowerCase() : seq[0]) ? 1 : 0;
+      }
+    },
+    { passive: true }
+  );
+
+  function runRainbow() {
+    var root = document.documentElement;
+    var start = performance.now();
+    var origin = getComputedStyle(root).getPropertyValue('--hue').trim() || '25';
+    var originNum = parseFloat(origin) || 25;
+    var dur = 2800;
+
+    function frame(t) {
+      var p = Math.min(1, (t - start) / dur);
+      var hue = (originNum + p * 360) % 360;
+      root.style.setProperty('--hue', String(Math.round(hue)));
+      if (p < 1) {
+        requestAnimationFrame(frame);
+      } else {
+        root.style.setProperty('--hue', String(originNum));
+        try {
+          console.log('%c✨ 折腾之力已充满。Hue 归位。', 'color:#C2522D;font-weight:bold;');
+        } catch (_) {}
+      }
+    }
+    requestAnimationFrame(frame);
+
+    // 轻提示 toast
+    var toast = document.createElement('div');
+    toast.textContent = '✨ Konami！主题色开始环游世界…';
+    toast.setAttribute(
+      'style',
+      'position:fixed;left:50%;bottom:2rem;transform:translateX(-50%);z-index:99999;' +
+        'padding:0.6rem 1rem;border-radius:999px;font-size:0.8rem;font-weight:700;' +
+        'background:var(--card-bg);color:var(--primary);border:1px solid color-mix(in oklab,var(--primary) 30%,transparent);' +
+        'box-shadow:0 8px 24px rgba(0,0,0,.12);pointer-events:none;opacity:0;transition:opacity .25s ease;'
+    );
+    document.body.appendChild(toast);
+    requestAnimationFrame(function () {
+      toast.style.opacity = '1';
+    });
+    setTimeout(function () {
+      toast.style.opacity = '0';
+      setTimeout(function () {
+        toast.remove();
+      }, 300);
+    }, 2200);
+  }
+})();
+</script>

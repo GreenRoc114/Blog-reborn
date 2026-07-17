@@ -18,30 +18,30 @@ const config = profileConfig
         </div>
         <ImageWrapper src={config.avatar || ""} alt="Profile Image of the Author" class="mx-auto lg:w-full h-full lg:mt-0"></ImageWrapper>
         
-        <!-- Status Dot -->
-        <div class="absolute bottom-3 right-3 z-50 flex items-center gap-1.5 bg-white/90 dark:bg-black/80 px-2.5 py-1 rounded-full shadow-lg backdrop-blur-md border border-black/5 dark:border-white/5 transition-transform group-hover:scale-105">
+        <!-- Status Dot：随本地时段切换文案 -->
+        <div id="profile-status" class="absolute bottom-3 right-3 z-50 flex items-center gap-1.5 bg-white/90 dark:bg-black/80 px-2.5 py-1 rounded-full shadow-lg backdrop-blur-md border border-black/5 dark:border-white/5 transition-transform group-hover:scale-105">
             <span class="relative flex h-2 w-2">
                 <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
                 <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
             </span>
-            <span class="text-[0.65rem] font-bold text-green-600 dark:text-green-400 tracking-wide uppercase">Coding</span>
+            <span id="profile-status-text" class="text-[0.65rem] font-bold text-green-600 dark:text-green-400 tracking-wide uppercase">Coding</span>
         </div>
     </a>
     <div class="px-2">
         <div class="font-bold text-2xl text-center mb-1 dark:text-neutral-50 transition tracking-wide">{config.name}</div>
         
-        <!-- RPG Level Bar -->
-        <div class="w-full max-w-[10rem] mx-auto mb-3">
+        <!-- RPG Level Bar：点击攒本地 EXP 彩蛋 -->
+        <button type="button" id="exp-bar-btn" class="w-full max-w-[10rem] mx-auto mb-3 block text-left cursor-pointer group/exp" title="点我攒经验">
             <div class="flex justify-between items-end mb-1.5 text-[0.7rem] font-bold">
-                <span class="text-[var(--primary)]">Lv.16</span>
-                <span class="text-neutral-400">EXP 85%</span>
+                <span class="text-[var(--primary)]">Lv.<span id="exp-level">16</span></span>
+                <span class="text-neutral-400">EXP <span id="exp-pct">85</span>%</span>
             </div>
             <div class="h-2 w-full bg-neutral-200 dark:bg-neutral-800 rounded-full overflow-hidden border border-neutral-300 dark:border-neutral-700">
-                <div class="h-full bg-[var(--primary)] w-[85%] relative">
+                <div id="exp-fill" class="h-full bg-[var(--primary)] relative transition-all duration-300" style="width: 85%">
                     <div class="absolute inset-0 bg-white/20 w-full animate-pulse"></div>
                 </div>
             </div>
-        </div>
+        </button>
         
         <!-- Premium RPG Stats Badges -->
         <div class="flex flex-wrap justify-center gap-1.5 mb-3 px-1">
@@ -76,4 +76,89 @@ const config = profileConfig
         </div>
     </div>
 </div>
+
+<script is:inline>
+(function () {
+  function statusByHour(h) {
+    if (h >= 23 || h < 5) return 'Night Owl';
+    if (h < 9) return 'Booting';
+    if (h < 12) return 'Coding';
+    if (h < 14) return 'Lunch';
+    if (h < 18) return 'Shipping';
+    if (h < 21) return 'Debugging';
+    return 'Chilling';
+  }
+
+  function paintStatus() {
+    var el = document.getElementById('profile-status-text');
+    if (!el) return;
+    el.textContent = statusByHour(new Date().getHours());
+  }
+
+  function paintExp() {
+    var levelEl = document.getElementById('exp-level');
+    var pctEl = document.getElementById('exp-pct');
+    var fill = document.getElementById('exp-fill');
+    if (!levelEl || !pctEl || !fill) return;
+    var raw = 0;
+    try {
+      raw = parseInt(localStorage.getItem('looksky-exp') || '0', 10) || 0;
+    } catch (_) {}
+    // 基础 Lv.16 + 访客点击贡献
+    var base = 16;
+    var total = base * 100 + 85 + raw;
+    var level = Math.floor(total / 100);
+    var pct = total % 100;
+    levelEl.textContent = String(level);
+    pctEl.textContent = String(pct);
+    fill.style.width = pct + '%';
+  }
+
+  function bindExp() {
+    var btn = document.getElementById('exp-bar-btn');
+    if (!btn || btn.dataset.bound === '1') return;
+    btn.dataset.bound = '1';
+    btn.addEventListener('click', function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      var raw = 0;
+      try {
+        raw = parseInt(localStorage.getItem('looksky-exp') || '0', 10) || 0;
+        raw += 1 + Math.floor(Math.random() * 3);
+        localStorage.setItem('looksky-exp', String(raw));
+      } catch (_) {}
+      paintExp();
+      btn.classList.add('scale-95');
+      setTimeout(function () {
+        btn.classList.remove('scale-95');
+      }, 120);
+    });
+  }
+
+  function boot() {
+    paintStatus();
+    paintExp();
+    bindExp();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', boot);
+  } else {
+    boot();
+  }
+
+  if (!window._profileEggSwup) {
+    window._profileEggSwup = true;
+    function reg() {
+      window.swup.hooks.on('page:view', function () {
+        var btn = document.getElementById('exp-bar-btn');
+        if (btn) delete btn.dataset.bound;
+        boot();
+      });
+    }
+    if (window.swup) reg();
+    else document.addEventListener('swup:enable', reg);
+  }
+})();
+</script>
 

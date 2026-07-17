@@ -1,39 +1,54 @@
 ---
-import Markdown from "@components/misc/Markdown.astro";
-import MainGridLayout from "@layouts/MainGridLayout.astro";
+import MainGridLayout from '@layouts/MainGridLayout.astro'
+import { Icon } from 'astro-icon/components'
+
+const tips = [
+  '也许页面去 rebase 了，还没回来。',
+  '404：资源在生产环境里玩起了捉迷藏。',
+  '你找到了一块未映射的内存。请勿写入。',
+  '链接可能已经退役，去归档里逛逛？',
+  '此处曾有一页，后来它 choose not to compile。',
+]
+
+// 构建期随机一条，静态 404 也有点变化
+const tip = tips[Math.floor(Math.random() * tips.length)]
 ---
 
-<script type="module">
-  // 将早期的页面重定向到 /posts
-  const currentPath = window.location.pathname;
-  if (!currentPath.startsWith("/posts") && currentPath !== "/404" && currentPath !== "/404/") {
-    // 获取 /posts + 当前页面的 URL 是否存在
-    const linkWithPostPrefix = await fetch("/posts" + currentPath);
-    // 如果存在，并且目标 URL 不是当前页面（防止无限刷新），则跳转
-    if (linkWithPostPrefix.ok && linkWithPostPrefix.url !== window.location.href) {
-      window.location.href = linkWithPostPrefix.url;
-    }
-  }
-</script>
+<MainGridLayout title="404" description="页面不存在">
+  <div class="flex w-full rounded-[var(--radius-large)] overflow-hidden relative min-h-32">
+    <div class="card-base z-10 px-8 md:px-10 py-10 relative w-full overflow-hidden">
+      <div class="absolute inset-0 bg-[radial-gradient(var(--primary)_1px,transparent_1px)] [background-size:18px_18px] opacity-[0.06] pointer-events-none"></div>
 
-<MainGridLayout title="404" description="界面不存在">
-  <div
-    class="flex w-full rounded-[var(--radius-large)] overflow-hidden relative min-h-32"
-  >
-    <div class="card-base z-10 px-9 py-6 relative w-full">
-      <Markdown class="mt-2 mb-4">
-        <h1>你来到了隐藏界面</h1>
-        <p>对不起，这里是 404 号室。您访问的页面不存在。</p>
-        <p>
-          正在为您查找可能的目的地，找到后会自动跳转。<br />
-          若没有发生任何跳转，说明您访问的页面不存在。
+      <div class="relative">
+        <div class="font-black text-[5.5rem] md:text-[7rem] leading-none tracking-tighter text-[var(--primary)]/15 select-none">
+          404
+        </div>
+        <h1 class="text-2xl md:text-3xl font-bold text-black/90 dark:text-white/90 -mt-4 mb-3">
+          你来到了未编译的虚空
+        </h1>
+        <p class="text-neutral-500 dark:text-neutral-400 mb-2 max-w-lg leading-relaxed">
+          {tip}
         </p>
-      </Markdown>
-      <a
-        href="/"
-        class="btn-plain scale-animation rounded-lg h-[3.25rem] px-5 font-bold active:scale-95"
-        >返回首页</a
-      >
+        <p class="text-sm text-neutral-400 mb-8">
+          错误码 <code class="px-1.5 py-0.5 rounded bg-black/5 dark:bg-white/10 text-[var(--primary)] font-mono text-xs">ENOENT</code>
+          · 建议返回已知坐标
+        </p>
+
+        <div class="flex flex-wrap gap-3">
+          <a href="/" class="btn-regular rounded-xl h-11 px-5 font-bold inline-flex items-center gap-2 active:scale-95">
+            <Icon name="material-symbols:home-outline-rounded" class="text-xl" />
+            回首页
+          </a>
+          <a href="/archive/" class="btn-plain rounded-xl h-11 px-5 font-bold inline-flex items-center gap-2 border border-black/10 dark:border-white/10">
+            <Icon name="material-symbols:book-outline" class="text-xl" />
+            去归档
+          </a>
+          <a href="/random/" class="btn-plain rounded-xl h-11 px-5 font-bold inline-flex items-center gap-2 border border-black/10 dark:border-white/10">
+            <Icon name="fa6-solid:dice" class="text-lg" />
+            随机漫游
+          </a>
+        </div>
+      </div>
     </div>
   </div>
 </MainGridLayout>
