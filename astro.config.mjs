@@ -20,8 +20,6 @@ import { parseDirectiveNode } from './src/plugins/remark-directive-rehype.js'
 import { remarkExcerpt } from './src/plugins/remark-excerpt.js'
 import { remarkReadingTime } from './src/plugins/remark-reading-time.mjs'
 
-import vue from '@astrojs/vue'
-
 import vercel from '@astrojs/vercel/serverless'
 
 // https://astro.build/config
@@ -102,7 +100,6 @@ export default defineConfig({
         Passed: async () => true, // https://github.com/PlayForm/Compress/issues/376
       },
     }),
-    vue(),
   ],
   markdown: {
     remarkPlugins: [
