@@ -1,22 +1,30 @@
 ---
-
 import MainGridLayout from '../layouts/MainGridLayout.astro'
-
 import { getEntry } from 'astro:content'
 import { i18n } from '../i18n/translation'
 import I18nKey from '../i18n/i18nKey'
 import Markdown from '@components/misc/Markdown.astro'
+import AboutTerminal from '@components/AboutTerminal.astro'
 
 const aboutPost = await getEntry('spec', 'about')
-
 const { Content } = await aboutPost.render()
 ---
+
 <MainGridLayout title={i18n(I18nKey.about)} description={i18n(I18nKey.about)}>
-    <div class="flex w-full rounded-[var(--radius-large)] overflow-hidden relative min-h-32">
-        <div class="card-base z-10 px-9 py-6 relative w-full ">
-            <Markdown class="mt-2">
-                <Content />
-            </Markdown>
-        </div>
+  <div class="flex w-full rounded-[var(--radius-large)] overflow-hidden relative min-h-32">
+    <div class="card-base z-10 px-5 md:px-9 py-6 relative w-full">
+      <div class="mb-6">
+        <h1 class="text-2xl md:text-3xl font-bold text-black/90 dark:text-white/90 mb-1">关于</h1>
+        <p class="text-sm text-neutral-500">不只会看 Markdown，也可以敲两下命令。</p>
+      </div>
+
+      <AboutTerminal />
+
+      <div class="mt-8 pt-6 border-t border-dashed border-black/10 dark:border-white/15">
+        <Markdown class="mt-2">
+          <Content />
+        </Markdown>
+      </div>
     </div>
+  </div>
 </MainGridLayout>

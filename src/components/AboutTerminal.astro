@@ -1,0 +1,311 @@
+---
+import { profileConfig, siteConfig } from '../config'
+---
+
+<div
+  id="about-terminal"
+  class="about-terminal font-mono text-[0.8rem] sm:text-[0.85rem] rounded-2xl overflow-hidden border border-black/10 dark:border-white/10 shadow-lg bg-[#1a1b1e] text-[#e8e6e3] select-text"
+  data-name={profileConfig.name}
+  data-bio={profileConfig.bio}
+  data-site={siteConfig.title}
+  data-github={profileConfig.links.find(l => l.name === 'GitHub')?.url || 'https://github.com/GreenRoc114'}
+  data-bilibili={profileConfig.links.find(l => l.name === 'Bilibili')?.url || ''}
+>
+  <!-- title bar -->
+  <div class="flex items-center gap-2 px-3.5 py-2.5 bg-[#2a2b2f] border-b border-white/5">
+    <span class="w-3 h-3 rounded-full bg-[#ff5f57]"></span>
+    <span class="w-3 h-3 rounded-full bg-[#febc2e]"></span>
+    <span class="w-3 h-3 rounded-full bg-[#28c840]"></span>
+    <span class="ml-2 text-[0.7rem] text-white/40 truncate">guest@looksky:~/about</span>
+  </div>
+
+  <!-- screen -->
+  <div
+    id="term-screen"
+    class="px-3.5 sm:px-4 py-3 min-h-[16rem] max-h-[28rem] overflow-y-auto leading-relaxed"
+    tabindex="0"
+    role="log"
+    aria-label="About terminal"
+  >
+    <div id="term-output"></div>
+    <form id="term-form" class="flex items-center gap-2 mt-0.5" autocomplete="off">
+      <span class="text-[#7ee787] shrink-0">guest@looksky</span>
+      <span class="text-white/40 shrink-0">:</span>
+      <span class="text-[#79c0ff] shrink-0">~/about</span>
+      <span class="text-white/50 shrink-0">$</span>
+      <input
+        id="term-input"
+        type="text"
+        spellcheck="false"
+        autocomplete="off"
+        autocapitalize="off"
+        class="flex-1 min-w-0 bg-transparent outline-none border-none text-[#e8e6e3] caret-[#7ee787] placeholder:text-white/25"
+        placeholder="输入 help 查看命令…"
+        aria-label="终端输入"
+      />
+    </form>
+  </div>
+</div>
+
+<style>
+  .about-terminal :global(.t-cmd) {
+    color: #e8e6e3;
+  }
+  .about-terminal :global(.t-out) {
+    color: #c9c7c4;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .about-terminal :global(.t-accent) {
+    color: #7ee787;
+  }
+  .about-terminal :global(.t-blue) {
+    color: #79c0ff;
+  }
+  .about-terminal :global(.t-dim) {
+    color: rgba(255, 255, 255, 0.4);
+  }
+  .about-terminal :global(.t-warn) {
+    color: #ffa657;
+  }
+  .about-terminal :global(.t-line) {
+    margin: 0.15rem 0;
+  }
+  .about-terminal :global(.t-block) {
+    margin: 0.35rem 0 0.6rem;
+  }
+  .about-terminal input:focus {
+    outline: none;
+    box-shadow: none;
+  }
+</style>
+
+<script is:inline>
+(function () {
+  function bootTerminal() {
+    var root = document.getElementById('about-terminal');
+    if (!root || root.dataset.booted === '1') return;
+    root.dataset.booted = '1';
+
+    var name = root.dataset.name || 'GreenRoc';
+    var bio = root.dataset.bio || '';
+    var site = root.dataset.site || 'LookSky';
+    var github = root.dataset.github || '';
+    var bilibili = root.dataset.bilibili || '';
+
+    var output = document.getElementById('term-output');
+    var form = document.getElementById('term-form');
+    var input = document.getElementById('term-input');
+    var screen = document.getElementById('term-screen');
+    if (!output || !form || !input || !screen) return;
+
+    var history = [];
+    var histIdx = -1;
+
+    function scrollBottom() {
+      screen.scrollTop = screen.scrollHeight;
+    }
+
+    function line(html, cls) {
+      var d = document.createElement('div');
+      d.className = 't-line ' + (cls || '');
+      d.innerHTML = html;
+      output.appendChild(d);
+      scrollBottom();
+    }
+
+    function block(html) {
+      var d = document.createElement('div');
+      d.className = 't-block t-out';
+      d.innerHTML = html;
+      output.appendChild(d);
+      scrollBottom();
+    }
+
+    function promptEcho(cmd) {
+      line(
+        '<span class="t-accent">guest@looksky</span><span class="t-dim">:</span><span class="t-blue">~/about</span><span class="t-dim">$</span> <span class="t-cmd">' +
+          escapeHtml(cmd) +
+          '</span>'
+      );
+    }
+
+    function escapeHtml(s) {
+      return String(s)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    var commands = {
+      help: function () {
+        block(
+          '<span class="t-accent">可用命令</span>\n' +
+            '  <span class="t-blue">whoami</span>    我是谁\n' +
+            '  <span class="t-blue">about</span>     关于本站\n' +
+            '  <span class="t-blue">skills</span>    技能面板（认真的）\n' +
+            '  <span class="t-blue">stack</span>     本站技术栈\n' +
+            '  <span class="t-blue">links</span>     外链\n' +
+            '  <span class="t-blue">uptime</span>    本站运行时长\n' +
+            '  <span class="t-blue">ls</span>        列出目录\n' +
+            '  <span class="t-blue">cat license</span>  版权协议\n' +
+            '  <span class="t-blue">clear</span>     清屏\n' +
+            '  <span class="t-blue">help</span>      你正在看的这个'
+        );
+      },
+      whoami: function () {
+        block(
+          '<span class="t-accent">' +
+            escapeHtml(name) +
+            '</span>\n' +
+            escapeHtml(bio) +
+            '\n' +
+            '<span class="t-dim">role:</span> 博客作者 / 终身安装卸载工程师\n' +
+            '<span class="t-dim">motto:</span> 生命不息，折腾不止。'
+        );
+      },
+      about: function () {
+        block(
+          '<span class="t-accent">' +
+            escapeHtml(site) +
+            '</span> — GreenRoc 的博客\n' +
+            '创建于 2024，域名 <span class="t-blue">gr114.com</span>\n' +
+            '主题气质：暖纸拟物 · 偶尔赛博 · 一直在改\n' +
+            '如果你看到这里，说明你也喜欢打开终端。'
+        );
+      },
+      skills: function () {
+        block(
+          'ATK  Pr/Ae/PS     <span class="t-dim"># 会安装</span>\n' +
+            'INT  C++/Java/Py  <span class="t-dim"># 会拼写</span>\n' +
+            'AGI  Win/Mac/Lin  <span class="t-dim"># 会开关机</span>\n' +
+            'LUK  ?????        <span class="t-warn"># 部署看心情</span>'
+        );
+      },
+      stack: function () {
+        block(
+          'Astro (hybrid) · Svelte islands · Tailwind\n' +
+            'Pagefind · Swup · Telegram memos · Vercel\n' +
+            '源码灵感：Fuwari / MagmaBlock 等开源项目'
+        );
+      },
+      links: function () {
+        var lines = [];
+        if (github) lines.push('<span class="t-dim">GitHub</span>   <span class="t-blue">' + escapeHtml(github) + '</span>');
+        if (bilibili) lines.push('<span class="t-dim">Bilibili</span> <span class="t-blue">' + escapeHtml(bilibili) + '</span>');
+        lines.push('<span class="t-dim">Site</span>     <span class="t-blue">https://gr114.com</span>');
+        lines.push('<span class="t-dim">RSS</span>      <span class="t-blue">/rss.xml</span>');
+        block(lines.join('\n'));
+      },
+      uptime: function () {
+        var start = new Date('2024-04-20T00:00:00+08:00').getTime();
+        var days = Math.floor((Date.now() - start) / 86400000);
+        block('up ' + days + ' days · since 2024-04-20 · load average: 折腾 / 摸鱼 / 重构');
+      },
+      ls: function () {
+        block(
+          '<span class="t-blue">about.md</span>  <span class="t-blue">license.txt</span>  <span class="t-blue">skills.json</span>  <span class="t-blue">stack.yml</span>\n' +
+            '<span class="t-dim">提示: 试试</span> <span class="t-accent">cat license</span>'
+        );
+      },
+      clear: function () {
+        output.innerHTML = '';
+      },
+    };
+
+    function run(raw) {
+      var cmd = String(raw || '').trim();
+      if (!cmd) return;
+      promptEcho(cmd);
+      history.push(cmd);
+      histIdx = history.length;
+
+      var parts = cmd.split(/\s+/);
+      var head = parts[0].toLowerCase();
+      var arg = parts.slice(1).join(' ').toLowerCase();
+
+      if (head === 'cat' && (arg === 'license' || arg === 'license.txt')) {
+        block(
+          'CC BY-NC-SA 4.0\n' +
+            '署名-非商业性使用-相同方式共享\n' +
+            'https://creativecommons.org/licenses/by-nc-sa/4.0/'
+        );
+        return;
+      }
+      if (head === 'cat' && (arg === 'about' || arg === 'about.md')) {
+        commands.about();
+        return;
+      }
+      if (commands[head]) {
+        commands[head]();
+        return;
+      }
+      block('<span class="t-warn">command not found:</span> ' + escapeHtml(head) + '\n输入 <span class="t-accent">help</span> 查看可用命令');
+    }
+
+    // 开机动画：逐条回放
+    var bootSeq = ['whoami', 'about', 'help'];
+    var i = 0;
+    function bootNext() {
+      if (i >= bootSeq.length) {
+        input.focus();
+        return;
+      }
+      var c = bootSeq[i++];
+      setTimeout(function () {
+        run(c);
+        bootNext();
+      }, i === 1 ? 200 : 350);
+    }
+    bootNext();
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var v = input.value;
+      input.value = '';
+      run(v);
+    });
+
+    input.addEventListener('keydown', function (e) {
+      if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        if (!history.length) return;
+        histIdx = Math.max(0, histIdx - 1);
+        input.value = history[histIdx] || '';
+      } else if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        histIdx = Math.min(history.length, histIdx + 1);
+        input.value = histIdx >= history.length ? '' : history[histIdx] || '';
+      }
+    });
+
+    screen.addEventListener('click', function () {
+      input.focus();
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bootTerminal);
+  } else {
+    bootTerminal();
+  }
+
+  if (!window._aboutTermSwup) {
+    window._aboutTermSwup = true;
+    function reg() {
+      window.swup.hooks.on('page:view', function () {
+        var root = document.getElementById('about-terminal');
+        if (root) {
+          delete root.dataset.booted;
+          var out = document.getElementById('term-output');
+          if (out) out.innerHTML = '';
+          bootTerminal();
+        }
+      });
+    }
+    if (window.swup) reg();
+    else document.addEventListener('swup:enable', reg);
+  }
+})();
+</script>
