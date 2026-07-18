@@ -75,7 +75,7 @@ export const profileConfig: ProfileConfig = {
   avatar: '/favicon/avatar.jpg',
   name: 'GreenRoc',
   bio: '生命不息，折腾不止。',
-  nowPlaying: '本周在折腾：博客体验打磨与语义化 URL',
+  nowPlaying: '本周在折腾：kimi-k3 + kimi-code',
   links: [
     {
       name: "GitHub",
