@@ -48,13 +48,18 @@ export type NavBarLink = {
 }
 
 export type NavBarConfig = {
+  /** 桌面主导航 */
   links: (NavBarLink | LinkPreset)[]
+  /** 收进「更多」/移动菜单附加项 */
+  moreLinks?: NavBarLink[]
 }
 
 export type ProfileConfig = {
   avatar?: string
   name: string
   bio?: string
+  /** 本周在折腾什么（侧栏状态行） */
+  nowPlaying?: string
   links: {
     name: string
     url: string

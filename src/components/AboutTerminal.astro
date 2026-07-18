@@ -146,12 +146,27 @@ import { profileConfig, siteConfig } from '../config'
             '  <span class="t-blue">about</span>     关于本站\n' +
             '  <span class="t-blue">skills</span>    技能面板（认真的）\n' +
             '  <span class="t-blue">stack</span>     本站技术栈\n' +
+            '  <span class="t-blue">neofetch</span>  假系统信息\n' +
+            '  <span class="t-blue">echo $MOTTO</span>  座右铭\n' +
             '  <span class="t-blue">links</span>     外链\n' +
             '  <span class="t-blue">uptime</span>    本站运行时长\n' +
+            '  <span class="t-blue">open archive</span>  跳转归档\n' +
             '  <span class="t-blue">ls</span>        列出目录\n' +
             '  <span class="t-blue">cat license</span>  版权协议\n' +
             '  <span class="t-blue">clear</span>     清屏\n' +
             '  <span class="t-blue">help</span>      你正在看的这个'
+        );
+      },
+      neofetch: function () {
+        block(
+          '       .--.       <span class="t-accent">guest</span>@<span class="t-blue">looksky</span>\n' +
+            '      |o_o |      -------------\n' +
+            '      |:_/ |      <span class="t-dim">OS</span>: BlogOS 2024 (Vercel)\n' +
+            '     //   \\ \\     <span class="t-dim">Host</span>: ' + escapeHtml(site) + '\n' +
+            '    (|     | )    <span class="t-dim">Kernel</span>: Astro hybrid\n' +
+            '   /\'\\_   _/`\\    <span class="t-dim">Shell</span>: zsh-of-the-mind\n' +
+            '   \\___)=(___/    <span class="t-dim">Theme</span>: warm parchment\n' +
+            '                  <span class="t-dim">CPU</span>: 1× 人类 · 无限× 好奇心'
         );
       },
       whoami: function () {
@@ -235,6 +250,17 @@ import { profileConfig, siteConfig } from '../config'
       }
       if (head === 'cat' && (arg === 'about' || arg === 'about.md')) {
         commands.about();
+        return;
+      }
+      if (head === 'echo' && (arg === '$motto' || arg === 'motto' || arg === '"$motto"')) {
+        block(escapeHtml(bio || '生命不息，折腾不止。'));
+        return;
+      }
+      if (head === 'open' && (arg === 'archive' || arg === '/archive' || arg === '归档')) {
+        block('<span class="t-dim">opening</span> /archive/ …');
+        setTimeout(function () {
+          window.location.href = '/archive/';
+        }, 280);
         return;
       }
       if (commands[head]) {

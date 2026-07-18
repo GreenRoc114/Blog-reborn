@@ -56,11 +56,17 @@ const config = profileConfig
             </div>
         </div>
 
-        <div class="text-center text-xs text-neutral-500 dark:text-neutral-400 mb-4 transition leading-relaxed">
+        <div class="text-center text-xs text-neutral-500 dark:text-neutral-400 mb-3 transition leading-relaxed">
             熟练掌握以上软件的 <span class="font-bold text-[var(--primary)]">安装与卸载</span><br/>
             精通以上语言的 <span class="font-bold text-[var(--primary)]">单词拼写</span><br/>
             熟悉以上系统的 <span class="font-bold text-[var(--primary)]">开关机</span>
         </div>
+
+        {config.nowPlaying && (
+          <div class="mb-4 mx-auto max-w-[14rem] px-2.5 py-1.5 rounded-xl text-[0.7rem] leading-snug text-center font-medium text-[var(--primary)] bg-[var(--primary)]/10 border border-[var(--primary)]/20">
+            {config.nowPlaying}
+          </div>
+        )}
 
         <div class="flex gap-2 justify-center mb-1">
             {config.links.length > 1 && config.links.map(item =>

@@ -3,9 +3,24 @@ import MainGridLayout from '@layouts/MainGridLayout.astro'
 import ArchivePanel from '@components/ArchivePanel.astro'
 import { i18n } from '@i18n/translation'
 import I18nKey from '@i18n/i18nKey'
+import { getSortedPosts } from '@utils/content-utils'
+
+const posts = await getSortedPosts()
+const total = posts.length
+const yearNow = new Date().getFullYear()
+const thisYear = posts.filter(p => p.data.published.getFullYear() === yearNow).length
+const latest = posts[0]
+const latestLabel = latest
+  ? `${latest.data.published.getFullYear()}-${String(latest.data.published.getMonth() + 1).padStart(2, '0')}-${String(latest.data.published.getDate()).padStart(2, '0')}`
+  : '—'
 ---
 
 <MainGridLayout title={i18n(I18nKey.archive)}>
+    <div class="card-base px-6 md:px-8 py-4 mb-4 flex flex-wrap gap-x-6 gap-y-2 text-sm text-neutral-600 dark:text-neutral-300">
+        <div><span class="text-neutral-400 mr-1">全部</span><span class="font-bold text-[var(--primary)]">{total}</span> 篇</div>
+        <div><span class="text-neutral-400 mr-1">{yearNow}</span><span class="font-bold text-[var(--primary)]">{thisYear}</span> 篇</div>
+        <div><span class="text-neutral-400 mr-1">最近更新</span><span class="font-bold">{latestLabel}</span></div>
+    </div>
     <ArchivePanel></ArchivePanel>
 </MainGridLayout>
 

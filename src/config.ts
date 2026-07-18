@@ -28,52 +28,54 @@ export const siteConfig: SiteConfig = {
     enable: true,           // Display the table of contents on the right side of the post
     depth: 2                // Maximum heading depth to show in the table, from 1 to 3
   },
-  favicon: [    // Leave this array empty to use the default favicon
+  favicon: [
     {
-      src: 'https://q1.qlogo.cn/g?b=qq&nk=3310149631@qq.com&s=640',    // Path of the favicon, relative to the /public directory
-    //   theme: 'light',              // (Optional) Either 'light' or 'dark', set only if you have different favicons for light and dark mode
-    //   sizes: '32x32',              // (Optional) Size of the favicon, set only if you have favicons of different sizes
-    }
-  ]
+      src: '/favicon/avatar.jpg',
+      sizes: '32x32',
+    },
+  ],
 }
 
 export const navBarConfig: NavBarConfig = {
   links: [
     LinkPreset.Archive,
     {
-      name: "友联",
-      url: "/links/",
-      icon: "material-symbols:share-outline",
+      name: '友联',
+      url: '/links/',
+      icon: 'material-symbols:share-outline',
     },
     LinkPreset.About,
     {
-      name: "碎碎念",
-      url: "/memos/",
-      icon: "fa6-solid:comment-dots",
+      name: '碎碎念',
+      url: '/memos/',
+      icon: 'fa6-solid:comment-dots',
+    },
+  ],
+  moreLinks: [
+    {
+      name: '21ball',
+      url: '/21ball/',
+      icon: 'material-symbols:sports-baseball',
     },
     {
-      name: "21ball",
-      url: "/21ball/",
-      icon: "material-symbols:sports-baseball",
+      name: '随机漫游',
+      url: '/random/',
+      icon: 'fa6-solid:dice',
     },
     {
-      name: "随机漫游",
-      url: "/random/",
-      icon: "fa6-solid:dice",
-    },
-    {
-      name: "开往",
-      url: "https://www.travellings.cn/go.html",
+      name: '开往',
+      url: 'https://www.travellings.cn/go.html',
       external: true,
-      icon: "material-symbols:rocket-launch-outline",
+      icon: 'material-symbols:rocket-launch-outline',
     },
   ],
 }
 
 export const profileConfig: ProfileConfig = {
-  avatar: 'https://q1.qlogo.cn/g?b=qq&nk=3310149631@qq.com&s=640',  // Relative to the /src directory. Relative to the /public directory if it starts with '/'
+  avatar: '/favicon/avatar.jpg',
   name: 'GreenRoc',
   bio: '生命不息，折腾不止。',
+  nowPlaying: '本周在折腾：博客体验打磨与语义化 URL',
   links: [
     {
       name: "GitHub",

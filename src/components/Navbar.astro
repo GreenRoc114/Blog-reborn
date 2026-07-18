@@ -10,17 +10,19 @@ import LightDarkSwitch from './LightDarkSwitch.svelte'
 import { url } from '../utils/url-utils'
 const className = Astro.props.class
 
-let links: NavBarLink[] = navBarConfig.links.map(
-  (item: NavBarLink | LinkPreset): NavBarLink => {
-    if (typeof item === 'number') {
-      return LinkPresets[item]
-    }
-    return item
-  },
-)
+function resolveLink(item: NavBarLink | LinkPreset): NavBarLink {
+  if (typeof item === 'number') {
+    return LinkPresets[item]
+  }
+  return item
+}
+
+const primaryLinks: NavBarLink[] = navBarConfig.links.map(resolveLink)
+const moreLinks: NavBarLink[] = navBarConfig.moreLinks || []
+const mobileLinks: NavBarLink[] = [...primaryLinks, ...moreLinks]
 ---
 <div id="navbar" class="z-50 onload-animation">
-    <div class="absolute h-8 left-0 right-0 -top-8 bg-white/70 dark:bg-black/70 backdrop-blur-lg transition"></div> <!-- used for onload animation -->
+    <div class="absolute h-8 left-0 right-0 -top-8 bg-white/70 dark:bg-black/70 backdrop-blur-lg transition"></div>
     <div class:list={[
         className,
         "card-base !bg-white/70 dark:!bg-black/70 backdrop-blur-lg border-b border-black/5 dark:border-white/5 !overflow-visible max-w-[var(--page-width)] h-[4.5rem] !rounded-t-none mx-auto flex items-center justify-between px-4"]}>
@@ -30,21 +32,56 @@ let links: NavBarLink[] = navBarConfig.links.map(
                 {siteConfig.title}
             </div>
         </a>
-        <div class="hidden md:flex">
-            {links.map((l) => {
-                return <a aria-label={l.name} href={l.external ? l.url : url(l.url)} target={l.external ? "_blank" : null}
-                          class="btn-plain scale-animation rounded-lg h-11 font-bold px-5 active:scale-95"
+        <div class="hidden md:flex items-center">
+            {primaryLinks.map((l) => (
+                <a aria-label={l.name} href={l.external ? l.url : url(l.url)} target={l.external ? "_blank" : null}
+                   class="btn-plain scale-animation rounded-lg h-11 font-bold px-5 active:scale-95"
                 >
                     <div class="flex items-center gap-1.5">
                         {l.icon && <Icon name={l.icon} class="text-[1.2rem] mb-0.5" />}
                         {l.name}
                         {l.external && <Icon name="fa6-solid:arrow-up-right-from-square" class="text-[0.875rem] transition -translate-y-[1px] ml-1 text-black/[0.2] dark:text-white/[0.2]"></Icon>}
                     </div>
-                </a>;
-            })}
+                </a>
+            ))}
+            {moreLinks.length > 0 && (
+              <div class="relative" id="nav-more-wrap">
+                <button
+                  type="button"
+                  id="nav-more-switch"
+                  aria-label="更多"
+                  aria-expanded="false"
+                  class="btn-plain scale-animation rounded-lg h-11 font-bold px-4 active:scale-95"
+                >
+                  <div class="flex items-center gap-1">
+                    更多
+                    <Icon name="material-symbols:expand-more-rounded" class="text-xl" />
+                  </div>
+                </button>
+                <div
+                  id="nav-more-panel"
+                  class="float-panel float-panel-closed absolute top-[3.25rem] right-0 min-w-[11rem] py-2 px-1 z-50"
+                >
+                  {moreLinks.map((l) => (
+                    <a
+                      href={l.external ? l.url : url(l.url)}
+                      target={l.external ? '_blank' : null}
+                      class="group flex justify-between items-center py-2 pl-3 pr-2 rounded-lg gap-6 hover:bg-[var(--btn-plain-bg-hover)] transition"
+                    >
+                      <div class="flex items-center gap-2 font-bold text-black/75 dark:text-white/75 group-hover:text-[var(--primary)]">
+                        {l.icon && <Icon name={l.icon} class="text-[1.15rem]" />}
+                        {l.name}
+                      </div>
+                      {l.external && (
+                        <Icon name="fa6-solid:arrow-up-right-from-square" class="text-[0.7rem] text-black/25 dark:text-white/25" />
+                      )}
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
         </div>
         <div class="flex">
-            <!-- idle：不阻塞首屏 hydration；搜索点开再拉 Pagefind -->
             <Search client:idle></Search>
             {!siteConfig.themeColor.fixed && (
                     <button aria-label="Display Settings" class="btn-plain scale-animation rounded-lg h-11 w-11 active:scale-90" id="display-settings-switch">
@@ -56,33 +93,16 @@ let links: NavBarLink[] = navBarConfig.links.map(
                 <Icon name="material-symbols:menu-rounded" class="text-[1.25rem]"></Icon>
             </button>
         </div>
-        <NavMenuPanel links={links}></NavMenuPanel>
+        <NavMenuPanel links={mobileLinks}></NavMenuPanel>
         <DisplaySettings client:only="svelte"></DisplaySettings>
     </div>
 </div>
 
 <script>
-
-function switchTheme() {
-    if (localStorage.theme === 'dark') {
-        document.documentElement.classList.remove('dark');
-        localStorage.theme = 'light';
-    } else {
-        document.documentElement.classList.add('dark');
-        localStorage.theme = 'dark';
-    }
-}
-
 function loadButtonScript() {
-    let switchBtn = document.getElementById("scheme-switch");
-    if (switchBtn) {
-        switchBtn.addEventListener("click", function () {
-            switchTheme()
-        });
-    }
-
     let settingBtn = document.getElementById("display-settings-switch");
-    if (settingBtn) {
+    if (settingBtn && !settingBtn.dataset.bound) {
+        settingBtn.dataset.bound = '1';
         settingBtn.addEventListener("click", function () {
             let settingPanel = document.getElementById("display-setting");
             if (settingPanel) {
@@ -92,7 +112,8 @@ function loadButtonScript() {
     }
 
     let menuBtn = document.getElementById("nav-menu-switch");
-    if (menuBtn) {
+    if (menuBtn && !menuBtn.dataset.bound) {
+        menuBtn.dataset.bound = '1';
         menuBtn.addEventListener("click", function () {
             let menuPanel = document.getElementById("nav-menu-panel");
             if (menuPanel) {
@@ -100,13 +121,33 @@ function loadButtonScript() {
             }
         });
     }
+
+    let moreBtn = document.getElementById("nav-more-switch");
+    let morePanel = document.getElementById("nav-more-panel");
+    if (moreBtn && morePanel && !moreBtn.dataset.bound) {
+        moreBtn.dataset.bound = '1';
+        moreBtn.addEventListener("click", function (e) {
+            e.stopPropagation();
+            morePanel.classList.toggle("float-panel-closed");
+            moreBtn.setAttribute('aria-expanded', morePanel.classList.contains('float-panel-closed') ? 'false' : 'true');
+        });
+        document.addEventListener("click", function (e) {
+            const wrap = document.getElementById("nav-more-wrap");
+            if (!wrap || wrap.contains(e.target as Node)) return;
+            morePanel.classList.add("float-panel-closed");
+            moreBtn.setAttribute('aria-expanded', 'false');
+        });
+    }
 }
 
 loadButtonScript();
 
 document.addEventListener('astro:after-swap', () => {
+    // 换页后按钮是新 DOM，重置 bound
+    ['display-settings-switch', 'nav-menu-switch', 'nav-more-switch'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) delete el.dataset.bound;
+    });
     loadButtonScript();
 }, { once: false });
 </script>
-
-{/* Pagefind 改为首次搜索时由 Search.svelte 按需加载，避免全站首屏拉索引 */}

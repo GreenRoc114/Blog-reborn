@@ -2,18 +2,29 @@
 ---
 <div class="card-base p-6 mb-4 onload-animation">
     <h2 class="text-2xl font-bold mb-6 text-black/80 dark:text-white/80">评论</h2>
-    <div id="giscus-wrapper"></div>
+    <div id="giscus-wrapper" class="min-h-[4rem]">
+        <div id="giscus-placeholder" class="text-sm text-neutral-400 py-6 text-center">
+            滚动到此处加载评论…
+        </div>
+    </div>
 </div>
 
 <script is:inline>
+(function () {
     function getGiscusTheme() {
         return document.documentElement.classList.contains('dark') ? 'noborder_dark' : 'noborder_light';
     }
 
     function loadGiscus() {
         const wrapper = document.getElementById('giscus-wrapper');
-        if (!wrapper) return;
-        wrapper.innerHTML = ''; // Clean up previous instance
+        if (!wrapper || wrapper.dataset.loaded === '1') return;
+        wrapper.dataset.loaded = '1';
+
+        const placeholder = document.getElementById('giscus-placeholder');
+        if (placeholder) placeholder.remove();
+
+        // 清掉旧 iframe
+        wrapper.querySelectorAll('script, iframe, .giscus').forEach(function (n) { n.remove(); });
 
         const script = document.createElement('script');
         script.src = 'https://giscus.app/client.js';
@@ -31,13 +42,34 @@
         script.setAttribute('data-loading', 'lazy');
         script.crossOrigin = 'anonymous';
         script.async = true;
-
         wrapper.appendChild(script);
+    }
+
+    function observeGiscus() {
+        const wrapper = document.getElementById('giscus-wrapper');
+        if (!wrapper) return;
+        delete wrapper.dataset.loaded;
+
+        if (!('IntersectionObserver' in window)) {
+            loadGiscus();
+            return;
+        }
+
+        const io = new IntersectionObserver(function (entries) {
+            entries.forEach(function (entry) {
+                if (entry.isIntersecting) {
+                    loadGiscus();
+                    io.disconnect();
+                }
+            });
+        }, { rootMargin: '200px 0px' });
+
+        io.observe(wrapper);
     }
 
     function syncGiscusTheme() {
         const iframe = document.querySelector('iframe.giscus-frame');
-        if (!iframe) return;
+        if (!iframe || !iframe.contentWindow) return;
         iframe.contentWindow.postMessage(
             { giscus: { setConfig: { theme: getGiscusTheme() } } },
             'https://giscus.app'
@@ -45,31 +77,30 @@
     }
 
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', loadGiscus);
+        document.addEventListener('DOMContentLoaded', observeGiscus);
     } else {
-        loadGiscus();
+        observeGiscus();
     }
 
-    // Astro view transitions (if used)
-    document.addEventListener('astro:page-load', loadGiscus);
-    document.addEventListener('astro:after-swap', loadGiscus);
+    document.addEventListener('astro:page-load', observeGiscus);
+    document.addEventListener('astro:after-swap', observeGiscus);
 
-    // Swup transitions
     if (window.swup) {
-        window.swup.hooks.on('page:view', loadGiscus);
+        window.swup.hooks.on('page:view', observeGiscus);
     } else {
-        document.addEventListener('swup:enable', () => {
-            window.swup.hooks.on('page:view', loadGiscus);
+        document.addEventListener('swup:enable', function () {
+            window.swup.hooks.on('page:view', observeGiscus);
         });
     }
 
-    // Observe theme changes
-    const observer = new MutationObserver((mutations) => {
-        mutations.forEach((mutation) => {
-            if (mutation.attributeName === 'class') {
-                syncGiscusTheme();
-            }
+    if (!window._giscusThemeObserver) {
+        window._giscusThemeObserver = true;
+        const observer = new MutationObserver(function (mutations) {
+            mutations.forEach(function (mutation) {
+                if (mutation.attributeName === 'class') syncGiscusTheme();
+            });
         });
-    });
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+        observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    }
+})();
 </script>

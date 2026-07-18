@@ -71,6 +71,7 @@ export default defineConfig({
           'copyright-outline-rounded',
           'dark-mode-rounded',
           'edit-calendar-outline-rounded',
+          'expand-more-rounded',
           'home-outline-rounded',
           'keyboard-arrow-up-rounded',
           'menu-rounded',
