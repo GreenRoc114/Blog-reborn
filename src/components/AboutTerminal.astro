@@ -1,5 +1,12 @@
 ---
 import { profileConfig, siteConfig } from '../config'
+import { getSortedPosts } from '../utils/content-utils'
+
+const sorted = await getSortedPosts()
+const recentPosts = sorted.slice(0, 3).map(p => ({
+  title: p.data.title,
+  slug: p.slug,
+}))
 ---
 
 <div
@@ -10,6 +17,8 @@ import { profileConfig, siteConfig } from '../config'
   data-site={siteConfig.title}
   data-github={profileConfig.links.find(l => l.name === 'GitHub')?.url || 'https://github.com/GreenRoc114'}
   data-bilibili={profileConfig.links.find(l => l.name === 'Bilibili')?.url || ''}
+  data-now={profileConfig.nowPlaying || ''}
+  data-posts={JSON.stringify(recentPosts)}
 >
   <!-- title bar -->
   <div class="flex items-center gap-2 px-3.5 py-2.5 bg-[#2a2b2f] border-b border-white/5">
@@ -92,6 +101,9 @@ import { profileConfig, siteConfig } from '../config'
     var site = root.dataset.site || 'LookSky';
     var github = root.dataset.github || '';
     var bilibili = root.dataset.bilibili || '';
+    var nowPlaying = root.dataset.now || '';
+    var recentPosts = [];
+    try { recentPosts = JSON.parse(root.dataset.posts || '[]'); } catch (_) {}
 
     var output = document.getElementById('term-output');
     var form = document.getElementById('term-form');
@@ -147,6 +159,8 @@ import { profileConfig, siteConfig } from '../config'
             '  <span class="t-blue">skills</span>    技能面板（认真的）\n' +
             '  <span class="t-blue">stack</span>     本站技术栈\n' +
             '  <span class="t-blue">neofetch</span>  假系统信息\n' +
+            '  <span class="t-blue">now</span>       本周在折腾\n' +
+            '  <span class="t-blue">posts</span>     最近文章\n' +
             '  <span class="t-blue">echo $MOTTO</span>  座右铭\n' +
             '  <span class="t-blue">links</span>     外链\n' +
             '  <span class="t-blue">uptime</span>    本站运行时长\n' +
@@ -168,6 +182,23 @@ import { profileConfig, siteConfig } from '../config'
             '   \\___)=(___/    <span class="t-dim">Theme</span>: warm parchment\n' +
             '                  <span class="t-dim">CPU</span>: 1× 人类 · 无限× 好奇心'
         );
+      },
+      now: function () {
+        if (nowPlaying) {
+          block('<span class="t-accent">status</span>\n' + escapeHtml(nowPlaying));
+        } else {
+          block('<span class="t-dim">本周状态未配置</span> · 见 config.ts nowPlaying');
+        }
+      },
+      posts: function () {
+        if (!recentPosts.length) {
+          block('<span class="t-dim">暂无文章</span>');
+          return;
+        }
+        var lines = recentPosts.map(function (p, i) {
+          return (i + 1) + '. <span class="t-blue"><a href="/posts/' + escapeHtml(p.slug) + '/" class="underline decoration-dotted">' + escapeHtml(p.title) + '</a></span>';
+        });
+        block('<span class="t-accent">recent posts</span>\n' + lines.join('\n') + '\n<span class="t-dim">open archive</span> 可跳转全部');
       },
       whoami: function () {
         block(

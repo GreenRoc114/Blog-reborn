@@ -1,22 +1,151 @@
 ---
-import MainGridLayout from "../layouts/MainGridLayout.astro";
-import Markdown from "@components/misc/Markdown.astro";
+import MainGridLayout from '../layouts/MainGridLayout.astro'
+import Markdown from '@components/misc/Markdown.astro'
+import { Icon } from 'astro-icon/components'
+import { getEntry } from 'astro:content'
 
-import { getEntry } from "astro:content";
+const post = await getEntry('spec', '21ball')
+const { Content } = await post.render()
 
-const post = await getEntry("spec", "21ball");
+const VIDEO_URL =
+  'https://alist.gr114.com/21%E7%8F%AD%E5%9C%9F%E8%91%97%E6%A1%8C%E7%90%83-%E7%8E%B0%E5%9C%BA%E5%AE%9E%E5%BD%95%E8%A7%86%E9%A2%91'
 
-const { Content } = await post.render();
+const facts = [
+  {
+    icon: 'material-symbols:person-outline',
+    label: '发明人',
+    text: 'Mr. October（十月先生）· 21 班抽象家兼数学课代表',
+  },
+  {
+    icon: 'material-symbols:sports-baseball',
+    label: '一句话',
+    text: '课桌上的狂野冰球：硬币当球，剪刀当杆，修正带当盾',
+  },
+  {
+    icon: 'material-symbols:group-outline',
+    label: '人数',
+    text: '2 人对战；裁判 / 计数 / 摄影 / 放哨可选，2～6 人',
+  },
+]
+
+const gear = [
+  { title: '场地', desc: '课桌（球门、界线、发球点）' },
+  { title: '球杆', desc: '国誉剪刀 ×2（进攻）' },
+  { title: '护具', desc: '修正带 ×2（防守 / 辅助）' },
+  { title: '用球', desc: '硬币 ×1' },
+]
+
+const rules = [
+  { tag: '总则', text: '爱惜场地及用品（十月先生多次强调）' },
+  { tag: '赛制', text: '初赛 1 分钟计时；复赛 5 球；总决赛 10 球' },
+  { tag: '发球', text: '禁止直接射门，必须运过中线后才能射' },
+  { tag: '出界', text: '对手发球；出界 5 次判罚球' },
+]
+
+const foulsHard = ['修正带运过中线', '开局就射门', '不爱惜场地及用品']
+const foulsSoft = ['将硬币弄丢', '不尊重裁判', '口吐芬芳']
 ---
 
-<MainGridLayout title="21土著桌球">
-  <div
-    class="flex w-full rounded-[var(--radius-large)] overflow-hidden relative min-h-32"
-  >
-    <div class="card-base z-10 px-9 py-6 relative w-full">
-      <Markdown class="mt-2">
-        <Content />
-      </Markdown>
+<MainGridLayout title="21土著桌球" description="课桌上的狂野桌球">
+  <div class="flex w-full rounded-[var(--radius-large)] overflow-hidden relative min-h-32">
+    <div class="card-base z-10 px-5 md:px-9 py-6 md:py-8 relative w-full">
+      <div class="relative overflow-hidden rounded-2xl border border-black/5 dark:border-white/10 bg-gradient-to-br from-[var(--primary)]/15 via-transparent to-black/[0.03] dark:to-white/[0.04] p-5 md:p-7 mb-6">
+        <div class="absolute inset-0 bg-[radial-gradient(var(--primary)_1px,transparent_1px)] [background-size:14px_14px] opacity-[0.07] pointer-events-none"></div>
+        <div class="relative flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+          <div>
+            <div class="inline-flex items-center gap-1.5 text-[0.7rem] font-bold tracking-wider uppercase text-[var(--primary)] bg-[var(--primary)]/10 border border-[var(--primary)]/20 px-2.5 py-1 rounded-full mb-3">
+              <span class="w-1.5 h-1.5 rounded-full bg-[var(--primary)] animate-pulse"></span>
+              Class 21 · Table Sport
+            </div>
+            <h1 class="text-3xl md:text-4xl font-black text-black/90 dark:text-white/90 tracking-tight mb-2">
+              21 土著桌球
+            </h1>
+            <p class="text-sm md:text-base text-neutral-600 dark:text-neutral-400 max-w-xl leading-relaxed">
+              一种很新的游戏：在课桌上，用硬币、剪刀和修正带，打出比冰球更狂野的对决。
+            </p>
+          </div>
+          <a
+            href={VIDEO_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="btn-regular shrink-0 rounded-xl h-12 px-5 font-bold inline-flex items-center gap-2 active:scale-95"
+          >
+            <Icon name="material-symbols:play-circle-outline" class="text-2xl" />
+            观看实战录像
+          </a>
+        </div>
+      </div>
+
+      <div class="grid gap-3 sm:grid-cols-3 mb-6">
+        {facts.map(f => (
+          <div class="rounded-2xl border border-black/[0.06] dark:border-white/[0.08] bg-black/[0.02] dark:bg-white/[0.03] p-4">
+            <div class="flex items-center gap-2 text-[var(--primary)] mb-2">
+              <Icon name={f.icon} class="text-xl" />
+              <span class="text-xs font-bold tracking-wide uppercase opacity-80">{f.label}</span>
+            </div>
+            <p class="text-sm text-neutral-700 dark:text-neutral-300 leading-relaxed">{f.text}</p>
+          </div>
+        ))}
+      </div>
+
+      <h2 class="text-lg font-bold mb-3 text-black/85 dark:text-white/85">装备清单</h2>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-2.5 mb-6">
+        {gear.map(g => (
+          <div class="rounded-xl border border-black/[0.06] dark:border-white/[0.08] p-3 text-center hover:border-[var(--primary)]/35 transition">
+            <div class="font-bold text-sm text-[var(--primary)] mb-1">{g.title}</div>
+            <div class="text-xs text-neutral-500 leading-snug">{g.desc}</div>
+          </div>
+        ))}
+      </div>
+
+      <h2 class="text-lg font-bold mb-3 text-black/85 dark:text-white/85">规则要点</h2>
+      <div class="grid gap-2 sm:grid-cols-2 mb-6">
+        {rules.map(r => (
+          <div class="flex gap-3 rounded-xl border border-black/[0.06] dark:border-white/[0.08] p-3.5">
+            <span class="shrink-0 h-fit text-[0.65rem] font-black tracking-wide text-white bg-[var(--primary)] px-2 py-0.5 rounded-md">
+              {r.tag}
+            </span>
+            <p class="text-sm text-neutral-700 dark:text-neutral-300 leading-relaxed">{r.text}</p>
+          </div>
+        ))}
+      </div>
+
+      <div class="grid gap-3 md:grid-cols-2 mb-8">
+        <div class="rounded-2xl border border-rose-500/25 bg-rose-500/[0.06] p-4">
+          <div class="font-bold text-rose-600 dark:text-rose-400 mb-2 text-sm">重度违规 · 2 次罚球</div>
+          <ul class="space-y-1.5 text-sm text-neutral-700 dark:text-neutral-300">
+            {foulsHard.map(t => (
+              <li class="flex gap-2">
+                <span class="text-rose-500 shrink-0">•</span>
+                <span>{t}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div class="rounded-2xl border border-amber-500/25 bg-amber-500/[0.06] p-4">
+          <div class="font-bold text-amber-700 dark:text-amber-400 mb-2 text-sm">轻度违规 · 10 次罚球</div>
+          <ul class="space-y-1.5 text-sm text-neutral-700 dark:text-neutral-300">
+            {foulsSoft.map(t => (
+              <li class="flex gap-2">
+                <span class="text-amber-500 shrink-0">•</span>
+                <span>{t}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+
+      <details class="group rounded-2xl border border-dashed border-black/10 dark:border-white/15 overflow-hidden">
+        <summary class="cursor-pointer list-none px-4 py-3 font-bold text-sm text-neutral-600 dark:text-neutral-300 hover:bg-black/[0.03] dark:hover:bg-white/[0.04] transition flex items-center justify-between">
+          <span>原文备忘 / 建设中笔记</span>
+          <Icon name="material-symbols:expand-more-rounded" class="text-xl transition group-open:rotate-180" />
+        </summary>
+        <div class="px-4 pb-4 border-t border-dashed border-black/10 dark:border-white/10">
+          <Markdown class="mt-3">
+            <Content />
+          </Markdown>
+        </div>
+      </details>
     </div>
   </div>
 </MainGridLayout>

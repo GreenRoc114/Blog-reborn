@@ -6,6 +6,7 @@ import type { MarkdownHeading } from 'astro'
 import TOC from './TOC.astro'
 import Heatmap from './Heatmap.astro'
 import DailyOracle from './DailyOracle.astro'
+import SubscribeCard from './SubscribeCard.astro'
 
 interface Props {
     class? : string
@@ -23,6 +24,7 @@ const headings = Astro.props.headings
     <div id="sidebar-sticky" class="transition-all duration-700 flex flex-col w-full gap-4 top-4 sticky top-4">
         <DailyOracle></DailyOracle>
         <Heatmap></Heatmap>
+        <SubscribeCard></SubscribeCard>
         <Categories class="onload-animation" style="animation-delay: 150ms"></Categories>
         <Tag class="onload-animation" style="animation-delay: 200ms"></Tag>
     </div>

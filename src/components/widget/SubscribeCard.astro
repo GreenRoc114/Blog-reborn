@@ -1,0 +1,43 @@
+---
+import { Icon } from 'astro-icon/components'
+import { getSortedPosts } from '../../utils/content-utils'
+import { getPostUrlBySlug, url } from '../../utils/url-utils'
+
+const posts = await getSortedPosts()
+const latest = posts[0]
+const latestDate = latest
+  ? `${latest.data.published.getFullYear()}-${String(latest.data.published.getMonth() + 1).padStart(2, '0')}-${String(latest.data.published.getDate()).padStart(2, '0')}`
+  : ''
+---
+
+<div class="card-base p-4 onload-animation" style="animation-delay: 220ms">
+  <div class="font-bold text-neutral-700 dark:text-neutral-300 text-sm mb-3">订阅与动态</div>
+  <a
+    href={url('/rss.xml')}
+    class="flex items-center gap-2.5 rounded-xl px-2.5 py-2 -mx-1 hover:bg-black/5 dark:hover:bg-white/5 transition group mb-1"
+  >
+    <span class="w-8 h-8 rounded-lg bg-[var(--primary)]/10 text-[var(--primary)] flex items-center justify-center shrink-0">
+      <Icon name="fa6-solid:rss" class="text-base" />
+    </span>
+    <span class="min-w-0">
+      <span class="block text-sm font-bold text-black/80 dark:text-white/80 group-hover:text-[var(--primary)] transition">RSS 订阅</span>
+      <span class="block text-[0.7rem] text-neutral-500 truncate">/rss.xml · 跟新文</span>
+    </span>
+  </a>
+  {latest && (
+    <a
+      href={getPostUrlBySlug(latest.slug)}
+      class="flex items-center gap-2.5 rounded-xl px-2.5 py-2 -mx-1 hover:bg-black/5 dark:hover:bg-white/5 transition group"
+    >
+      <span class="w-8 h-8 rounded-lg bg-black/5 dark:bg-white/10 text-[var(--primary)] flex items-center justify-center shrink-0">
+        <Icon name="material-symbols:schedule-outline-rounded" class="text-lg" />
+      </span>
+      <span class="min-w-0">
+        <span class="block text-[0.7rem] text-neutral-500">最近更新 · {latestDate}</span>
+        <span class="block text-sm font-bold text-black/80 dark:text-white/80 truncate group-hover:text-[var(--primary)] transition">
+          {latest.data.title}
+        </span>
+      </span>
+    </a>
+  )}
+</div>
