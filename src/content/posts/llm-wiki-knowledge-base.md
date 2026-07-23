@@ -2,6 +2,7 @@
 title: 给四个 AI 编程工具的对话记录建了个知识库
 published: 2026-07-23 15:00:00
 description: Antigravity CLI、Claude Code、OpenCode、grok-cli 四个工具的对话记录散落系统各处，格式还全不一样。花了一天把它们全收进一个 Obsidian vault。
+image: ./llm-wiki-cover.png
 tags: [折腾, 知识库, 踩坑, AI编程工具]
 category: 折腾记录
 draft: false
