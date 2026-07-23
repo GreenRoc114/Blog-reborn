@@ -10,7 +10,6 @@ import '../styles/photoswipe.css'
 
 import { profileConfig, siteConfig } from '@/config'
 import ConfigCarrier from '@components/ConfigCarrier.astro'
-import CustomCursor from '@components/widget/CustomCursor.astro'
 import Analytics from '@vercel/analytics/astro'
 import {
   AUTO_MODE,
@@ -181,7 +180,6 @@ const bannerOffset =
 
 		<!-- increase the page height during page transition to prevent the scrolling animation from jumping -->
 		<div id="page-height-extend" class="hidden h-[300vh]"></div>
-		<CustomCursor />
 		<Analytics />
 	</body>
 </html>
