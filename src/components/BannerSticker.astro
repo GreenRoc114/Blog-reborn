@@ -3,7 +3,7 @@ import logoSticker from '../assets/images/banner/greenroc-logo-sticker.webp'
 import { Image } from 'astro:assets'
 ---
 
-{/* SVG filters：白边贴合外形 + 光照/阴影 */}
+{/* SVG filters：桌面完整；移动端用 .is-lite 关掉重滤镜 */}
 <svg class="banner-sticker-svg-defs" height="0" width="0" aria-hidden="true">
   <defs>
     <filter id="ls-pointLight" color-interpolation-filters="sRGB">
@@ -40,7 +40,6 @@ import { Image } from 'astro:assets'
       <feDropShadow dx="3" dy="4" stdDeviation="4" flood-color="black" flood-opacity="0.32" />
     </filter>
 
-    <!-- 图内已有厚白边，这里只补很薄的圆润外晕 -->
     <filter id="ls-outerStroke" x="-15%" y="-15%" width="130%" height="130%" color-interpolation-filters="sRGB">
       <feMorphology operator="dilate" radius="2" in="SourceAlpha" result="expanded" />
       <feGaussianBlur in="expanded" stdDeviation="0.8" result="rounded" />
@@ -69,9 +68,10 @@ import { Image } from 'astro:assets'
 <div id="banner-sticker-stage" class="banner-sticker-stage absolute inset-0">
   <div
     class="absolute inset-0 bg-[radial-gradient(#C2522D_1px,transparent_1px)] [background-size:16px_16px] opacity-[0.04] pointer-events-none"
+    aria-hidden="true"
   ></div>
 
-  <div class="draggable" id="ls-draggable">
+  <div class="draggable" id="ls-draggable" role="img" aria-label="GreenRoc 贴纸，可拖动">
     <div class="sticker-wrap">
       <div class="sticker-container" id="ls-sticker-container">
         <div class="sticker-main">
@@ -80,10 +80,10 @@ import { Image } from 'astro:assets'
               src={logoSticker}
               alt="GreenRoc 114"
               class="sticker-image"
-              widths={[480, 720, 960, 1440]}
-              sizes="(max-width: 640px) 82vw, 480px"
+              widths={[360, 480, 720, 960, 1440]}
+              sizes="(max-width: 640px) 78vw, 480px"
               format="webp"
-              quality={88}
+              quality={86}
               draggable="false"
             />
           </div>
@@ -95,10 +95,10 @@ import { Image } from 'astro:assets'
               src={logoSticker}
               alt=""
               class="shadow-image"
-              widths={[480, 720]}
-              sizes="480px"
+              widths={[360, 480, 720]}
+              sizes="(max-width: 640px) 78vw, 480px"
               format="webp"
-              quality={70}
+              quality={65}
               draggable="false"
             />
           </div>
@@ -110,10 +110,10 @@ import { Image } from 'astro:assets'
               src={logoSticker}
               alt=""
               class="flap-image"
-              widths={[480, 720]}
-              sizes="480px"
+              widths={[360, 480, 720]}
+              sizes="(max-width: 640px) 78vw, 480px"
               format="webp"
-              quality={70}
+              quality={65}
               draggable="false"
             />
           </div>
@@ -134,6 +134,9 @@ import { Image } from 'astro:assets'
 
   .banner-sticker-stage {
     pointer-events: none;
+    overflow: hidden;
+    /* 给左侧翘边留一点呼吸，移动端别裁太狠 */
+    contain: layout style;
   }
 
   .draggable {
@@ -144,9 +147,11 @@ import { Image } from 'astro:assets'
     cursor: grab;
     pointer-events: auto;
     z-index: 2;
-    touch-action: none;
-    will-change: left, top, transform;
-    /* 撕起 / 拖动共用同一热区（padding 即触发范围，对称以免中心偏移） */
+    /* 默认允许竖滑：只有确认要拖贴纸才锁 */
+    touch-action: pan-y;
+    -webkit-user-select: none;
+    user-select: none;
+    /* 桌面热区；移动端下面收紧 */
     padding: 2.5rem 3rem;
     box-sizing: content-box;
   }
@@ -154,15 +159,16 @@ import { Image } from 'astro:assets'
   .draggable.is-dragging {
     cursor: grabbing;
     z-index: 5;
+    touch-action: none;
   }
 
   .sticker-wrap {
     --sticker-rotate: -5deg;
     --sticker-p: 12px;
-    /* 0% 贴平 → 50% 撕到一半；由 JS 跟手插值驱动 */
     --peel: 0%;
     --sticker-start: calc(-1 * var(--sticker-p));
     --sticker-end: calc(100% + var(--sticker-p));
+    --sticker-w: clamp(240px, 54vw, 480px);
     padding: 1.1rem 1.4rem 1.25rem 1rem;
   }
 
@@ -178,7 +184,6 @@ import { Image } from 'astro:assets'
     -webkit-tap-highlight-color: transparent;
   }
 
-  /* 从左边翘：--peel 为撕开比例；0 时保留 -p 边距不裁描边 */
   .sticker-main {
     position: relative;
     z-index: 2;
@@ -197,13 +202,13 @@ import { Image } from 'astro:assets'
 
   .sticker-image {
     display: block;
-    width: clamp(240px, 54vw, 480px);
+    width: var(--sticker-w);
     height: auto;
+    max-width: 100%;
     transform: rotate(var(--sticker-rotate));
     filter: url(#ls-outerStroke);
   }
 
-  /* 左侧翻折瓣：水平镜像，left / 宽度随 --peel 同步 */
   .flap {
     position: absolute;
     width: 100%;
@@ -228,8 +233,9 @@ import { Image } from 'astro:assets'
   .flap-image,
   .shadow-image {
     display: block;
-    width: clamp(240px, 54vw, 480px);
+    width: var(--sticker-w);
     height: auto;
+    max-width: 100%;
     transform: rotate(var(--sticker-rotate));
     filter: url(#ls-expandAndFill);
   }
@@ -246,9 +252,79 @@ import { Image } from 'astro:assets'
     pointer-events: none;
   }
 
-  .sticker-main,
-  .flap {
-    will-change: clip-path, left;
+  /* —— 移动端 / 触控 / 竖屏 —— */
+  @media (max-width: 640px), (pointer: coarse) {
+    .draggable {
+      /* 热区别铺太大，否则挡页面滚动 */
+      padding: 0.85rem 1rem;
+      /* 略偏上，避开与主内容叠层 */
+      top: 46%;
+    }
+
+    .sticker-wrap {
+      --sticker-rotate: -3deg;
+      --sticker-p: 8px;
+      /* 竖屏：按宽度收一点，避免裁切与溢出 */
+      --sticker-w: min(78vw, 320px);
+      padding: 0.5rem 0.65rem 0.75rem;
+    }
+
+    .shadow {
+      top: 0.4rem;
+      left: 0.45rem;
+      filter: brightness(0) blur(5px);
+      opacity: 0.28;
+    }
+
+    /* 关掉昂贵 SVG 光照 / 描边滤镜，改用轻量 CSS */
+    .sticker-lighting,
+    .flap-lighting {
+      filter: none;
+    }
+
+    .sticker-main {
+      filter: drop-shadow(2px 4px 6px rgba(0, 0, 0, 0.28));
+    }
+
+    .sticker-image {
+      filter: none;
+    }
+
+    .flap-image,
+    .shadow-image {
+      filter: none;
+      /* 撕起背面用近似底色，避免再跑 morphology */
+      background: rgb(214, 212, 206);
+      border-radius: 12px;
+    }
+
+    .flap-image {
+      opacity: 0.92;
+      mix-blend-mode: normal;
+      /* 用亮度压成「背面」感，省 SVG */
+      filter: brightness(0.95) contrast(0.9) saturate(0.3);
+    }
+
+    .shadow-image {
+      opacity: 0;
+    }
+
+    .shadow {
+      /* 移动端用主图 drop-shadow 即可 */
+      display: none;
+    }
+  }
+
+  /* 很矮的横屏手机：再缩小 */
+  @media (max-height: 500px) and (orientation: landscape) {
+    .draggable {
+      top: 50%;
+      padding: 0.5rem 0.75rem;
+    }
+    .sticker-wrap {
+      --sticker-w: min(42vw, 220px);
+      --sticker-rotate: -2deg;
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -271,24 +347,42 @@ import { Image } from 'astro:assets'
     var wrap = draggable && draggable.querySelector('.sticker-wrap');
     var light = document.getElementById('ls-fePointLight');
     var lightFlip = document.getElementById('ls-fePointLightFlipped');
-    if (!stage || !draggable || !container || !wrap || !light || !lightFlip) return;
+    if (!stage || !draggable || !container || !wrap) return;
     if (draggable.dataset.bound === '1') return;
     draggable.dataset.bound = '1';
 
     var reduceMotion =
       window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var coarse =
+      window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+    var narrow =
+      window.matchMedia && window.matchMedia('(max-width: 640px)').matches;
+    var isTouchUI = coarse || narrow;
 
-    // 撕边目标：hover 轻掀，拖动撕到约一半
-    var PEEL_HOVER = 14;
-    var PEEL_DRAG = 50;
+    // 桌面：hover 轻掀 14%，拖到一半；触控：不 hover，拖时撕到约 42%
+    var PEEL_HOVER = isTouchUI ? 0 : 14;
+    var PEEL_DRAG = isTouchUI ? 42 : 50;
+
     var peelCurrent = 0;
     var peelTarget = 0;
     var peelRaf = 0;
     var hovering = false;
-    var isDragging = false;
+
+    // 拖动状态机：pending → dragging / cancelled（竖滑）
+    var mode = 'idle'; // idle | pending | dragging
     var activePointerId = null;
+    var startX = 0;
+    var startY = 0;
+    var originLeft = 0;
+    var originTop = 0;
     var dragOffsetX = 0;
     var dragOffsetY = 0;
+    var baseLeft = 0;
+    var baseTop = 0;
+
+    // 触控：位移超过阈值才认拖贴纸，避免抢滚动
+    var AXIS_LOCK_PX = isTouchUI ? 12 : 4;
+    var DRAG_SLOP_PX = isTouchUI ? 10 : 3;
 
     function stageRect() {
       return stage.getBoundingClientRect();
@@ -310,8 +404,8 @@ import { Image } from 'astro:assets'
 
     function resolvePeelTarget() {
       if (reduceMotion) return 0;
-      if (isDragging) return PEEL_DRAG;
-      if (hovering) return PEEL_HOVER;
+      if (mode === 'dragging') return PEEL_DRAG;
+      if (hovering && !isTouchUI) return PEEL_HOVER;
       return 0;
     }
 
@@ -324,11 +418,10 @@ import { Image } from 'astro:assets'
         applyPeel(peelCurrent);
         return;
       }
-      // 跟手：按下撕开快一点；回落/悬停更舒缓
       var k;
-      if (isDragging) k = 0.16; // 较快跟到一半
-      else if (diff < 0) k = 0.055; // 回落最慢
-      else k = 0.08; // hover 掀起适中
+      if (mode === 'dragging') k = isTouchUI ? 0.22 : 0.16;
+      else if (diff < 0) k = isTouchUI ? 0.1 : 0.055;
+      else k = 0.08;
       peelCurrent += diff * k;
       applyPeel(peelCurrent);
       peelRaf = requestAnimationFrame(tickPeel);
@@ -340,6 +433,7 @@ import { Image } from 'astro:assets'
     }
 
     function updateLight(clientX, clientY) {
+      if (!light || !lightFlip || isTouchUI) return;
       var rect = container.getBoundingClientRect();
       var x = clientX - rect.left;
       var y = clientY - rect.top;
@@ -349,58 +443,115 @@ import { Image } from 'astro:assets'
       lightFlip.setAttribute('y', String(y));
     }
 
-    function onPointerDown(e) {
-      if (e.button != null && e.button !== 0) return;
-      if (isDragging) return;
+    function clampPos(left, top) {
+      var sr = stageRect();
+      var dw = draggable.offsetWidth || 280;
+      var dh = draggable.offsetHeight || 160;
+      // 移动端夹得更紧，少露出半截
+      var xMin = isTouchUI ? -dw * 0.15 : -dw * 0.4;
+      var xMax = isTouchUI ? sr.width - dw * 0.85 : sr.width - dw * 0.6;
+      var yMin = isTouchUI ? -dh * 0.1 : -dh * 0.25;
+      var yMax = isTouchUI ? sr.height - dh * 0.75 : sr.height - dh * 0.55;
+      return {
+        left: clamp(left, xMin, Math.max(xMin, xMax)),
+        top: clamp(top, yMin, Math.max(yMin, yMax)),
+      };
+    }
 
-      isDragging = true;
-      activePointerId = e.pointerId;
+    function beginDrag(e) {
+      mode = 'dragging';
       draggable.classList.add('is-dragging');
+      draggable.style.touchAction = 'none';
       requestPeel();
 
       var rect = draggable.getBoundingClientRect();
       var sr = stageRect();
       dragOffsetX = e.clientX - rect.left;
       dragOffsetY = e.clientY - rect.top;
-      setAbsPos(rect.left - sr.left, rect.top - sr.top);
-      updateLight(e.clientX, e.clientY);
+      baseLeft = rect.left - sr.left;
+      baseTop = rect.top - sr.top;
+      setAbsPos(baseLeft, baseTop);
 
       try {
         draggable.setPointerCapture(e.pointerId);
       } catch (err) {}
-      e.preventDefault();
+    }
+
+    function onPointerDown(e) {
+      if (e.button != null && e.button !== 0) return;
+      if (mode !== 'idle') return;
+
+      mode = 'pending';
+      activePointerId = e.pointerId;
+      startX = e.clientX;
+      startY = e.clientY;
+
+      var rect = draggable.getBoundingClientRect();
+      var sr = stageRect();
+      originLeft = rect.left - sr.left;
+      originTop = rect.top - sr.top;
+
+      // 桌面鼠标：几乎立刻进入拖
+      if (e.pointerType === 'mouse') {
+        beginDrag(e);
+        e.preventDefault();
+        return;
+      }
+
+      // 触控：先不 capture、不 preventDefault，竖滑把滚动权还给页面
+      updateLight(e.clientX, e.clientY);
     }
 
     function onPointerMove(e) {
-      if (!isDragging) {
+      if (activePointerId != null && e.pointerId !== activePointerId) return;
+
+      if (mode === 'pending') {
+        var dx = e.clientX - startX;
+        var dy = e.clientY - startY;
+        var adx = Math.abs(dx);
+        var ady = Math.abs(dy);
+
+        // 明显竖向 → 取消贴纸拖动，交给页面滚动
+        if (ady > AXIS_LOCK_PX && ady > adx * 1.15) {
+          mode = 'idle';
+          activePointerId = null;
+          return;
+        }
+
+        // 横向或斜向够距离 → 确认拖贴纸
+        if (adx > DRAG_SLOP_PX || (adx > 6 && adx >= ady)) {
+          beginDrag(e);
+          e.preventDefault();
+        }
+        return;
+      }
+
+      if (mode !== 'dragging') {
         if (e.pointerType === 'mouse') updateLight(e.clientX, e.clientY);
         return;
       }
-      if (activePointerId != null && e.pointerId !== activePointerId) return;
 
       var sr = stageRect();
-      var dw = draggable.offsetWidth || 280;
-      var dh = draggable.offsetHeight || 160;
       var left = e.clientX - sr.left - dragOffsetX;
       var top = e.clientY - sr.top - dragOffsetY;
-      left = clamp(left, -dw * 0.4, sr.width - dw * 0.6);
-      top = clamp(top, -dh * 0.25, sr.height - dh * 0.55);
-      setAbsPos(left, top);
+      var pos = clampPos(left, top);
+      setAbsPos(pos.left, pos.top);
       updateLight(e.clientX, e.clientY);
       e.preventDefault();
     }
 
-    function endDrag(e) {
-      if (!isDragging) return;
-      if (e && activePointerId != null && e.pointerId !== activePointerId) return;
+    function endPointer(e) {
+      if (activePointerId != null && e && e.pointerId !== activePointerId) return;
 
-      isDragging = false;
+      var wasDragging = mode === 'dragging';
       var pid = activePointerId;
+      mode = 'idle';
       activePointerId = null;
       draggable.classList.remove('is-dragging');
+      draggable.style.touchAction = '';
       requestPeel();
 
-      if (pid != null) {
+      if (wasDragging && pid != null) {
         try {
           if (draggable.hasPointerCapture && draggable.hasPointerCapture(pid)) {
             draggable.releasePointerCapture(pid);
@@ -411,24 +562,25 @@ import { Image } from 'astro:assets'
 
     draggable.addEventListener('pointerdown', onPointerDown);
     draggable.addEventListener('pointermove', onPointerMove);
-    draggable.addEventListener('pointerup', endDrag);
-    draggable.addEventListener('pointercancel', endDrag);
+    draggable.addEventListener('pointerup', endPointer);
+    draggable.addEventListener('pointercancel', endPointer);
     draggable.addEventListener('lostpointercapture', function () {
-      if (isDragging) {
-        isDragging = false;
+      if (mode === 'dragging' || mode === 'pending') {
+        mode = 'idle';
         activePointerId = null;
         draggable.classList.remove('is-dragging');
+        draggable.style.touchAction = '';
         requestPeel();
       }
     });
 
     function setHovering(next) {
+      if (isTouchUI) return; // 触控无 hover 撕边
       if (hovering === next) return;
       hovering = next;
       requestPeel();
     }
 
-    // 撕起热区 = draggable 盒（含 padding），与可拖区域完全一致
     function hitTest(clientX, clientY) {
       var r = draggable.getBoundingClientRect();
       return (
@@ -440,17 +592,16 @@ import { Image } from 'astro:assets'
     }
 
     draggable._stickerOnProximity = function (clientX, clientY) {
-      if (isDragging) return;
+      if (mode === 'dragging' || isTouchUI) return;
       setHovering(hitTest(clientX, clientY));
       if (hovering) updateLight(clientX, clientY);
     };
 
-    // enter/leave 与 hitTest 同一边界，避免两套区域不同步
     draggable.addEventListener('pointerenter', function () {
       setHovering(true);
     });
     draggable.addEventListener('pointerleave', function () {
-      if (!isDragging) setHovering(false);
+      if (mode === 'idle') setHovering(false);
     });
 
     if (!window._bannerStickerPeelMove) {
@@ -458,6 +609,8 @@ import { Image } from 'astro:assets'
       document.addEventListener(
         'pointermove',
         function (e) {
+          // 触控滚动时别做全局 hover 检测
+          if (e.pointerType === 'touch') return;
           var d = document.getElementById('ls-draggable');
           if (!d || typeof d._stickerOnProximity !== 'function') return;
           d._stickerOnProximity(e.clientX, e.clientY);
@@ -478,7 +631,6 @@ import { Image } from 'astro:assets'
   if (!window._bannerStickerSwup) {
     window._bannerStickerSwup = true;
     function reg() {
-      // 仅对新挂载的节点绑定；不要清 bound 再绑，否则会堆叠监听导致拖不动
       window.swup.hooks.on('page:view', function () {
         bindBannerSticker();
       });
