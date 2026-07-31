@@ -1,0 +1,490 @@
+---
+import logoSticker from '../assets/images/banner/greenroc-logo-sticker.webp'
+import { Image } from 'astro:assets'
+---
+
+{/* SVG filters：白边贴合外形 + 光照/阴影 */}
+<svg class="banner-sticker-svg-defs" height="0" width="0" aria-hidden="true">
+  <defs>
+    <filter id="ls-pointLight" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="1" result="blur" />
+      <feSpecularLighting
+        result="spec"
+        in="blur"
+        specularExponent="100"
+        specularConstant="0.12"
+        lighting-color="white"
+      >
+        <fePointLight id="ls-fePointLight" x="100" y="80" z="300" />
+      </feSpecularLighting>
+      <feComposite in="spec" in2="SourceGraphic" operator="screen" result="lit" />
+      <feComposite in="lit" in2="SourceAlpha" operator="in" />
+    </filter>
+
+    <filter id="ls-pointLightFlipped" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="10" result="blur" />
+      <feSpecularLighting
+        result="spec"
+        in="blur"
+        specularExponent="100"
+        specularConstant="0.65"
+        lighting-color="white"
+      >
+        <fePointLight id="ls-fePointLightFlipped" x="100" y="80" z="300" />
+      </feSpecularLighting>
+      <feComposite in="spec" in2="SourceGraphic" operator="screen" result="lit" />
+      <feComposite in="lit" in2="SourceAlpha" operator="in" />
+    </filter>
+
+    <filter id="ls-dropShadow" color-interpolation-filters="sRGB">
+      <feDropShadow dx="3" dy="4" stdDeviation="4" flood-color="black" flood-opacity="0.32" />
+    </filter>
+
+    <!-- 图内已有厚白边，这里只补很薄的圆润外晕 -->
+    <filter id="ls-outerStroke" x="-15%" y="-15%" width="130%" height="130%" color-interpolation-filters="sRGB">
+      <feMorphology operator="dilate" radius="2" in="SourceAlpha" result="expanded" />
+      <feGaussianBlur in="expanded" stdDeviation="0.8" result="rounded" />
+      <feColorMatrix
+        in="rounded"
+        type="matrix"
+        values="0 0 0 0 1
+                0 0 0 0 1
+                0 0 0 0 1
+                0 0 0 1 0"
+        result="whiteExpanded"
+      />
+      <feComposite operator="out" in="whiteExpanded" in2="SourceAlpha" result="outerStroke" />
+      <feComposite operator="over" in="SourceGraphic" in2="outerStroke" />
+    </filter>
+
+    <filter id="ls-expandAndFill" x="-15%" y="-15%" width="130%" height="130%" color-interpolation-filters="sRGB">
+      <feMorphology operator="dilate" radius="2" in="SourceAlpha" result="shape" />
+      <feGaussianBlur in="shape" stdDeviation="0.8" result="rounded" />
+      <feFlood flood-color="rgb(214, 212, 206)" result="flood" />
+      <feComposite operator="in" in="flood" in2="rounded" />
+    </filter>
+  </defs>
+</svg>
+
+<div id="banner-sticker-stage" class="banner-sticker-stage absolute inset-0">
+  <div
+    class="absolute inset-0 bg-[radial-gradient(#C2522D_1px,transparent_1px)] [background-size:16px_16px] opacity-[0.04] pointer-events-none"
+  ></div>
+
+  <div class="draggable" id="ls-draggable">
+    <div class="sticker-wrap">
+      <div class="sticker-container" id="ls-sticker-container">
+        <div class="sticker-main">
+          <div class="sticker-lighting">
+            <Image
+              src={logoSticker}
+              alt="GreenRoc 114"
+              class="sticker-image"
+              widths={[480, 720, 960, 1440]}
+              sizes="(max-width: 640px) 82vw, 480px"
+              format="webp"
+              quality={88}
+              draggable="false"
+            />
+          </div>
+        </div>
+
+        <div class="shadow" aria-hidden="true">
+          <div class="flap">
+            <Image
+              src={logoSticker}
+              alt=""
+              class="shadow-image"
+              widths={[480, 720]}
+              sizes="480px"
+              format="webp"
+              quality={70}
+              draggable="false"
+            />
+          </div>
+        </div>
+
+        <div class="flap" aria-hidden="true">
+          <div class="flap-lighting">
+            <Image
+              src={logoSticker}
+              alt=""
+              class="flap-image"
+              widths={[480, 720]}
+              sizes="480px"
+              format="webp"
+              quality={70}
+              draggable="false"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .banner-sticker-svg-defs {
+    position: absolute;
+    width: 0;
+    height: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .banner-sticker-stage {
+    pointer-events: none;
+  }
+
+  .draggable {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    cursor: grab;
+    pointer-events: auto;
+    z-index: 2;
+    touch-action: none;
+    will-change: left, top, transform;
+    /* 撕起 / 拖动共用同一热区（padding 即触发范围，对称以免中心偏移） */
+    padding: 2.5rem 3rem;
+    box-sizing: content-box;
+  }
+
+  .draggable.is-dragging {
+    cursor: grabbing;
+    z-index: 5;
+  }
+
+  .sticker-wrap {
+    --sticker-rotate: -5deg;
+    --sticker-p: 12px;
+    /* 0% 贴平 → 50% 撕到一半；由 JS 跟手插值驱动 */
+    --peel: 0%;
+    --sticker-start: calc(-1 * var(--sticker-p));
+    --sticker-end: calc(100% + var(--sticker-p));
+    padding: 1.1rem 1.4rem 1.25rem 1rem;
+  }
+
+  .sticker-container {
+    position: relative;
+    display: inline-block;
+  }
+
+  .sticker-container * {
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* 从左边翘：--peel 为撕开比例；0 时保留 -p 边距不裁描边 */
+  .sticker-main {
+    position: relative;
+    z-index: 2;
+    clip-path: polygon(
+      calc(var(--sticker-start) + var(--peel)) var(--sticker-start),
+      var(--sticker-end) var(--sticker-start),
+      var(--sticker-end) var(--sticker-end),
+      calc(var(--sticker-start) + var(--peel)) var(--sticker-end)
+    );
+    filter: url(#ls-dropShadow);
+  }
+
+  .sticker-lighting {
+    filter: url(#ls-pointLight);
+  }
+
+  .sticker-image {
+    display: block;
+    width: clamp(240px, 54vw, 480px);
+    height: auto;
+    transform: rotate(var(--sticker-rotate));
+    filter: url(#ls-outerStroke);
+  }
+
+  /* 左侧翻折瓣：水平镜像，left / 宽度随 --peel 同步 */
+  .flap {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: calc(-100% + 2 * (var(--sticker-start) + var(--peel)) - 1px);
+    clip-path: polygon(
+      var(--sticker-start) var(--sticker-start),
+      calc(var(--sticker-start) + var(--peel)) var(--sticker-start),
+      calc(var(--sticker-start) + var(--peel)) var(--sticker-end),
+      var(--sticker-start) var(--sticker-end)
+    );
+    transform: scaleX(-1);
+    z-index: 3;
+    pointer-events: none;
+  }
+
+  .flap-lighting {
+    filter: url(#ls-pointLightFlipped);
+  }
+
+  .flap-image,
+  .shadow-image {
+    display: block;
+    width: clamp(240px, 54vw, 480px);
+    height: auto;
+    transform: rotate(var(--sticker-rotate));
+    filter: url(#ls-expandAndFill);
+  }
+
+  .shadow {
+    position: absolute;
+    top: 0.55rem;
+    left: 0.85rem;
+    width: 100%;
+    height: 100%;
+    filter: brightness(0) blur(8px);
+    opacity: 0.34;
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  .sticker-main,
+  .flap {
+    will-change: clip-path, left;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sticker-wrap {
+      --peel: 0% !important;
+    }
+  }
+</style>
+
+<script is:inline>
+(function () {
+  try {
+    localStorage.removeItem('looksky-banner-sticker-pos');
+  } catch (e) {}
+
+  function bindBannerSticker() {
+    var stage = document.getElementById('banner-sticker-stage');
+    var draggable = document.getElementById('ls-draggable');
+    var container = document.getElementById('ls-sticker-container');
+    var wrap = draggable && draggable.querySelector('.sticker-wrap');
+    var light = document.getElementById('ls-fePointLight');
+    var lightFlip = document.getElementById('ls-fePointLightFlipped');
+    if (!stage || !draggable || !container || !wrap || !light || !lightFlip) return;
+    if (draggable.dataset.bound === '1') return;
+    draggable.dataset.bound = '1';
+
+    var reduceMotion =
+      window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // 撕边目标：hover 轻掀，拖动撕到约一半
+    var PEEL_HOVER = 14;
+    var PEEL_DRAG = 50;
+    var peelCurrent = 0;
+    var peelTarget = 0;
+    var peelRaf = 0;
+    var hovering = false;
+    var isDragging = false;
+    var activePointerId = null;
+    var dragOffsetX = 0;
+    var dragOffsetY = 0;
+
+    function stageRect() {
+      return stage.getBoundingClientRect();
+    }
+
+    function clamp(n, min, max) {
+      return Math.max(min, Math.min(max, n));
+    }
+
+    function setAbsPos(left, top) {
+      draggable.style.left = left + 'px';
+      draggable.style.top = top + 'px';
+      draggable.style.transform = 'none';
+    }
+
+    function applyPeel(v) {
+      wrap.style.setProperty('--peel', v.toFixed(2) + '%');
+    }
+
+    function resolvePeelTarget() {
+      if (reduceMotion) return 0;
+      if (isDragging) return PEEL_DRAG;
+      if (hovering) return PEEL_HOVER;
+      return 0;
+    }
+
+    function tickPeel() {
+      peelRaf = 0;
+      peelTarget = resolvePeelTarget();
+      var diff = peelTarget - peelCurrent;
+      if (Math.abs(diff) < 0.08) {
+        peelCurrent = peelTarget;
+        applyPeel(peelCurrent);
+        return;
+      }
+      // 跟手：按下撕开快一点；回落/悬停更舒缓
+      var k;
+      if (isDragging) k = 0.16; // 较快跟到一半
+      else if (diff < 0) k = 0.055; // 回落最慢
+      else k = 0.08; // hover 掀起适中
+      peelCurrent += diff * k;
+      applyPeel(peelCurrent);
+      peelRaf = requestAnimationFrame(tickPeel);
+    }
+
+    function requestPeel() {
+      peelTarget = resolvePeelTarget();
+      if (!peelRaf) peelRaf = requestAnimationFrame(tickPeel);
+    }
+
+    function updateLight(clientX, clientY) {
+      var rect = container.getBoundingClientRect();
+      var x = clientX - rect.left;
+      var y = clientY - rect.top;
+      light.setAttribute('x', String(x));
+      light.setAttribute('y', String(y));
+      lightFlip.setAttribute('x', String(rect.width - x));
+      lightFlip.setAttribute('y', String(y));
+    }
+
+    function onPointerDown(e) {
+      if (e.button != null && e.button !== 0) return;
+      if (isDragging) return;
+
+      isDragging = true;
+      activePointerId = e.pointerId;
+      draggable.classList.add('is-dragging');
+      requestPeel();
+
+      var rect = draggable.getBoundingClientRect();
+      var sr = stageRect();
+      dragOffsetX = e.clientX - rect.left;
+      dragOffsetY = e.clientY - rect.top;
+      setAbsPos(rect.left - sr.left, rect.top - sr.top);
+      updateLight(e.clientX, e.clientY);
+
+      try {
+        draggable.setPointerCapture(e.pointerId);
+      } catch (err) {}
+      e.preventDefault();
+    }
+
+    function onPointerMove(e) {
+      if (!isDragging) {
+        if (e.pointerType === 'mouse') updateLight(e.clientX, e.clientY);
+        return;
+      }
+      if (activePointerId != null && e.pointerId !== activePointerId) return;
+
+      var sr = stageRect();
+      var dw = draggable.offsetWidth || 280;
+      var dh = draggable.offsetHeight || 160;
+      var left = e.clientX - sr.left - dragOffsetX;
+      var top = e.clientY - sr.top - dragOffsetY;
+      left = clamp(left, -dw * 0.4, sr.width - dw * 0.6);
+      top = clamp(top, -dh * 0.25, sr.height - dh * 0.55);
+      setAbsPos(left, top);
+      updateLight(e.clientX, e.clientY);
+      e.preventDefault();
+    }
+
+    function endDrag(e) {
+      if (!isDragging) return;
+      if (e && activePointerId != null && e.pointerId !== activePointerId) return;
+
+      isDragging = false;
+      var pid = activePointerId;
+      activePointerId = null;
+      draggable.classList.remove('is-dragging');
+      requestPeel();
+
+      if (pid != null) {
+        try {
+          if (draggable.hasPointerCapture && draggable.hasPointerCapture(pid)) {
+            draggable.releasePointerCapture(pid);
+          }
+        } catch (err) {}
+      }
+    }
+
+    draggable.addEventListener('pointerdown', onPointerDown);
+    draggable.addEventListener('pointermove', onPointerMove);
+    draggable.addEventListener('pointerup', endDrag);
+    draggable.addEventListener('pointercancel', endDrag);
+    draggable.addEventListener('lostpointercapture', function () {
+      if (isDragging) {
+        isDragging = false;
+        activePointerId = null;
+        draggable.classList.remove('is-dragging');
+        requestPeel();
+      }
+    });
+
+    function setHovering(next) {
+      if (hovering === next) return;
+      hovering = next;
+      requestPeel();
+    }
+
+    // 撕起热区 = draggable 盒（含 padding），与可拖区域完全一致
+    function hitTest(clientX, clientY) {
+      var r = draggable.getBoundingClientRect();
+      return (
+        clientX >= r.left &&
+        clientX <= r.right &&
+        clientY >= r.top &&
+        clientY <= r.bottom
+      );
+    }
+
+    draggable._stickerOnProximity = function (clientX, clientY) {
+      if (isDragging) return;
+      setHovering(hitTest(clientX, clientY));
+      if (hovering) updateLight(clientX, clientY);
+    };
+
+    // enter/leave 与 hitTest 同一边界，避免两套区域不同步
+    draggable.addEventListener('pointerenter', function () {
+      setHovering(true);
+    });
+    draggable.addEventListener('pointerleave', function () {
+      if (!isDragging) setHovering(false);
+    });
+
+    if (!window._bannerStickerPeelMove) {
+      window._bannerStickerPeelMove = true;
+      document.addEventListener(
+        'pointermove',
+        function (e) {
+          var d = document.getElementById('ls-draggable');
+          if (!d || typeof d._stickerOnProximity !== 'function') return;
+          d._stickerOnProximity(e.clientX, e.clientY);
+        },
+        { passive: true }
+      );
+    }
+
+    applyPeel(0);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bindBannerSticker);
+  } else {
+    bindBannerSticker();
+  }
+
+  if (!window._bannerStickerSwup) {
+    window._bannerStickerSwup = true;
+    function reg() {
+      // 仅对新挂载的节点绑定；不要清 bound 再绑，否则会堆叠监听导致拖不动
+      window.swup.hooks.on('page:view', function () {
+        bindBannerSticker();
+      });
+    }
+    if (window.swup) reg();
+    else document.addEventListener('swup:enable', reg);
+  }
+})();
+</script>

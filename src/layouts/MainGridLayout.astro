@@ -4,6 +4,7 @@ import Navbar from '@components/Navbar.astro'
 import BackToTop from '@components/control/BackToTop.astro'
 import SideBar from '@components/widget/SideBar.astro'
 import Profile from '@components/widget/Profile.astro'
+import BannerSticker from '@components/BannerSticker.astro'
 import Layout from './Layout.astro'
 import { Icon } from 'astro-icon/components'
 import { siteConfig } from '../config'
@@ -42,136 +43,49 @@ const mainPanelTop = siteConfig.banner.enable ? `calc(${BANNER_HEIGHT}vh - ${MAI
     </div>
 </div>
 
-<!-- Banner / Typewriter Quote -->
-{siteConfig.banner.enable && <div id="banner-wrapper" class="absolute z-10 w-full transition duration-700 overflow-hidden flex items-center justify-center bg-[var(--page-bg)]" style=`top: -${BANNER_HEIGHT_EXTEND}vh`>
+<!-- Banner：贴纸 logo（CodePen Sticker 效果，无打字机） -->
+{siteConfig.banner.enable && <div id="banner-wrapper" class="absolute z-10 w-full transition duration-700 overflow-hidden flex items-center justify-center bg-[var(--page-bg)]" style={`top: -${BANNER_HEIGHT_EXTEND}vh`}>
     <div id="banner" class="w-full h-full bg-[var(--page-bg)] transition duration-700 opacity-0 scale-105 relative">
-        <div id="typewriter-container"
-             class:list={["w-full h-full absolute inset-0",
-                          isHomePage ? "flex flex-col items-center justify-center" : "hidden"]}>
-            <div class="absolute inset-0 bg-[radial-gradient(#C2522D_1px,transparent_1px)] [background-size:16px_16px] opacity-[0.03] pointer-events-none"></div>
-            <span class="text-4xl font-serif text-[var(--primary)] opacity-40 select-none mt-12">&ldquo;</span>
-            <h2 class="font-serif font-bold italic text-2xl md:text-3xl text-[var(--deep-text)] tracking-wider leading-relaxed min-h-[4rem] flex items-center justify-center text-center">
-                <span id="typed-text"></span><span class="animate-pulse text-[var(--primary)] font-normal ml-0.5 select-none">|</span>
-            </h2>
-            <span class="text-4xl font-serif text-[var(--primary)] opacity-40 select-none mt-2">&rdquo;</span>
-            <div class="mt-4 text-xs font-bold tracking-widest text-[#8E887B] dark:text-[#8A8A87] uppercase font-sans select-none">
-                — GreenRoc's Motto —
-            </div>
+        <div
+          id="banner-sticker-root"
+          class:list={['w-full h-full absolute inset-0', isHomePage ? '' : 'hidden']}
+        >
+          <BannerSticker />
         </div>
     </div>
 </div>}
 
 <script is:inline>
-(function() {
-    var phrases = [
-        "生命不息，折腾不止。",
-        "Stay hungry, stay foolish.",
-        "Talk is cheap, show me the code.",
-        "Never Gonna Give You Up",
-        "Never Gonna Let You Down"
-    ];
-
-    // 动态问候语逻辑
-    var hour = new Date().getHours();
-    var greeting = "";
-    if (hour >= 23 || hour < 5) greeting = "夜深了，注意休息哦。";
-    else if (hour >= 5 && hour < 9) greeting = "早上好！新的一天开始了。";
-    else if (hour >= 9 && hour < 12) greeting = "上午好！打起精神来。";
-    else if (hour >= 12 && hour < 14) greeting = "中午好！吃过午饭了吗？";
-    else if (hour >= 14 && hour < 18) greeting = "下午好！喝杯茶休息一下吧。";
-    else if (hour >= 18 && hour < 23) greeting = "晚上好！今天过得怎么样？";
-    
-    // 把问候语插到第一句，让访客进来第一眼看到
-    phrases.unshift(greeting);
-
-    function isHome() {
-        // 完全依赖服务器与 Layout.astro 同步后的 class
-        return document.body.classList.contains('is-home');
-    }
-
-    function showContainer() {
-        var c = document.getElementById('typewriter-container');
-        if (!c) return;
-        c.className = c.className.replace(/\bhidden\b/g, '');
-        c.style.display = 'flex';
-        c.style.flexDirection = 'column';
-        c.style.alignItems = 'center';
-        c.style.justifyContent = 'center';
-    }
-
-    function hideContainer() {
-        var c = document.getElementById('typewriter-container');
-        if (!c) return;
-        c.style.display = 'none';
-    }
-
-    function startTypewriter() {
-        // 清掉旧定时器
-        if (window._twTimer) {
-            clearTimeout(window._twTimer);
-            window._twTimer = null;
-        }
-
-        if (!isHome()) {
-            hideContainer();
-            return;
-        }
-
-        showContainer();
-
-        var el = document.getElementById('typed-text');
-        if (!el) return;
-
-        var phraseIndex = 0;
-        var charIndex = 0;
-        var deleting = false;
-        el.textContent = '';
-
-        function tick() {
-            var cur = document.getElementById('typed-text');
-            if (!cur) return;
-
-            var phrase = phrases[phraseIndex];
-            if (deleting) {
-                charIndex--;
-                cur.textContent = phrase.substring(0, charIndex);
-            } else {
-                charIndex++;
-                cur.textContent = phrase.substring(0, charIndex);
-            }
-
-            var delay = deleting ? 30 : 100 + Math.random() * 80;
-            if (!deleting && charIndex === phrase.length) {
-                delay = 2500;
-                deleting = true;
-            } else if (deleting && charIndex === 0) {
-                deleting = false;
-                phraseIndex = (phraseIndex + 1) % phrases.length;
-                delay = 500;
-            }
-            window._twTimer = setTimeout(tick, delay);
-        }
-
-        window._twTimer = setTimeout(tick, 300);
-    }
-
-    // Swup 钩子只注册一次
-    function registerSwup() {
-        if (window._twSwupDone) return;
-        window._twSwupDone = true;
-        window.swup.hooks.on('page:view', startTypewriter);
-    }
-
-    // 首次加载立即启动
-    startTypewriter();
-
-    // 注册 Swup
-    if (window.swup) {
-        registerSwup();
+(function () {
+  function syncBannerSticker() {
+    var root = document.getElementById('banner-sticker-root');
+    if (!root) return;
+    var home = document.body.classList.contains('is-home');
+    if (home) {
+      root.classList.remove('hidden');
     } else {
-        document.addEventListener('swup:enable', registerSwup);
+      root.classList.add('hidden');
     }
-}());
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', syncBannerSticker);
+  } else {
+    syncBannerSticker();
+  }
+
+  function reg() {
+    if (window._bannerStickerVisDone) return;
+    window._bannerStickerVisDone = true;
+    window.swup.hooks.on('page:view', syncBannerSticker);
+    window.swup.hooks.on('visit:start', function (visit) {
+      // 与 Layout 同步 is-home 时机接近，再刷一次显示
+      setTimeout(syncBannerSticker, 0);
+    });
+  }
+  if (window.swup) reg();
+  else document.addEventListener('swup:enable', reg);
+})();
 </script>
 
 <!-- Main content -->
