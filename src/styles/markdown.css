@@ -1,5 +1,5 @@
 .custom-md {
-    font-family: 'Lora', 'Georgia', serif;
+    font-family: 'Lora', 'Songti SC', 'STSong', 'SimSun', Georgia, serif;
     h1 {
         @apply text-3xl;
     }

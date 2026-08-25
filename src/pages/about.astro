@@ -5,6 +5,7 @@ import { i18n } from '../i18n/translation'
 import I18nKey from '../i18n/i18nKey'
 import Markdown from '@components/misc/Markdown.astro'
 import AboutTerminal from '@components/AboutTerminal.astro'
+import Lightbox from '@components/misc/Lightbox.astro'
 
 const aboutPost = await getEntry('spec', 'about')
 const { Content } = await aboutPost.render()
@@ -27,4 +28,7 @@ const { Content } = await aboutPost.render()
       </div>
     </div>
   </div>
+
+  {/* 页内有 Markdown 图片（CC 协议徽章等）时启用灯箱 */}
+  <Lightbox />
 </MainGridLayout>

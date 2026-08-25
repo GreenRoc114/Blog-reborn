@@ -1,0 +1,574 @@
+---
+import idleSprite from '@assets/images/mascot/idle.webp'
+import thinkSprite from '@assets/images/mascot/think.webp'
+import workingSprite from '@assets/images/mascot/working.webp'
+import celebrateSprite from '@assets/images/mascot/celebrate.webp'
+import errorSprite from '@assets/images/mascot/error.webp'
+import welcomeSprite from '@assets/images/mascot/welcome.webp'
+import dragSprite from '@assets/images/mascot/drag.webp'
+
+const spriteUrls = {
+  idle: idleSprite.src,
+  think: thinkSprite.src,
+  working: workingSprite.src,
+  celebrate: celebrateSprite.src,
+  error: errorSprite.src,
+  welcome: welcomeSprite.src,
+  drag: dragSprite.src,
+}
+---
+
+<div id="looksky-mascot" class="looksky-mascot is-collapsed" aria-live="polite">
+  <div class="mascot-effects" aria-hidden="true"></div>
+  <div class="mascot-bubble" role="status"></div>
+  <button
+    id="mascot-close"
+    class="mascot-close"
+    type="button"
+    aria-label="收起看板娘"
+    title="收起看板娘"
+  >
+    <span aria-hidden="true">x</span>
+  </button>
+  <button
+    id="mascot-toggle"
+    class="mascot-toggle"
+    type="button"
+    aria-label="展开看板娘"
+    title="展开看板娘"
+  >
+    <span class="mascot-sprite" aria-hidden="true"></span>
+  </button>
+</div>
+
+<style>
+  .looksky-mascot {
+    --mascot-size: 136px;
+    --mascot-frame: 0;
+    --mascot-position: 0%;
+    --mascot-sheet: url('');
+    position: fixed;
+    right: max(1rem, env(safe-area-inset-right));
+    bottom: max(1.25rem, env(safe-area-inset-bottom));
+    width: var(--mascot-size);
+    height: var(--mascot-size);
+    z-index: 40;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+    transition: opacity 180ms ease, transform 180ms ease;
+  }
+
+  .mascot-toggle {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    cursor: grab;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .mascot-toggle:focus-visible {
+    outline: 3px solid var(--primary);
+    outline-offset: 4px;
+    border-radius: 50%;
+  }
+
+  .mascot-sprite {
+    width: 100%;
+    height: 100%;
+    background-image: var(--mascot-sheet);
+    background-repeat: no-repeat;
+    background-position: var(--mascot-position) 0;
+    background-size: calc(var(--mascot-frames) * 100%) 100%;
+    filter: drop-shadow(0 8px 10px rgb(0 0 0 / 18%));
+    transition: filter 180ms ease, transform 180ms ease;
+  }
+
+  .looksky-mascot:hover .mascot-sprite,
+  .looksky-mascot:focus-within .mascot-sprite {
+    filter: drop-shadow(0 11px 13px rgb(0 0 0 / 23%));
+    transform: translateY(-2px) scale(1.03);
+  }
+
+  .looksky-mascot.is-dragging .mascot-toggle {
+    cursor: grabbing;
+  }
+
+  .looksky-mascot.is-collapsed {
+    --mascot-size: 54px;
+    opacity: 0.95;
+  }
+
+  .looksky-mascot.is-collapsed .mascot-sprite {
+    border-radius: 50%;
+    background-size: calc(var(--mascot-frames) * 100%) 100%;
+  }
+
+  .mascot-close {
+    position: absolute;
+    top: -0.25rem;
+    right: -0.15rem;
+    z-index: 2;
+    display: grid;
+    place-items: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    padding: 0;
+    border: 1px solid color-mix(in srgb, var(--line-divider) 85%, transparent);
+    border-radius: 999px;
+    background: var(--card-bg);
+    color: var(--deep-text);
+    box-shadow: 0 2px 8px rgb(0 0 0 / 14%);
+    cursor: pointer;
+    font: 700 1rem/1 system-ui, sans-serif;
+    opacity: 0;
+    pointer-events: none;
+    transform: scale(0.8);
+    transition: opacity 160ms ease, transform 160ms ease, background 160ms ease;
+  }
+
+  .looksky-mascot:hover .mascot-close,
+  .looksky-mascot:focus-within .mascot-close {
+    opacity: 1;
+    pointer-events: auto;
+    transform: scale(1);
+  }
+
+  .mascot-close:hover {
+    background: var(--btn-plain-bg-hover);
+  }
+
+  .mascot-bubble {
+    position: absolute;
+    right: 0;
+    bottom: calc(100% + 0.4rem);
+    width: max-content;
+    max-width: min(16rem, calc(100vw - 2rem));
+    padding: 0.55rem 0.75rem;
+    border: 1px solid color-mix(in srgb, var(--line-divider) 86%, transparent);
+    border-radius: 0.6rem;
+    background: color-mix(in srgb, var(--card-bg) 93%, transparent);
+    box-shadow: 0 8px 24px rgb(0 0 0 / 12%);
+    color: var(--deep-text);
+    font-size: 0.78rem;
+    font-weight: 700;
+    line-height: 1.45;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(0.35rem) scale(0.96);
+    transform-origin: right bottom;
+    transition: opacity 180ms ease, transform 180ms ease;
+  }
+
+  .mascot-bubble.is-visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  .mascot-effects {
+    position: absolute;
+    inset: -2rem;
+    pointer-events: none;
+  }
+
+  .mascot-heart {
+    position: absolute;
+    left: 50%;
+    bottom: 30%;
+    color: #ed6a8a;
+    font-size: 1.25rem;
+    opacity: 0;
+    animation: mascot-heart-rise 900ms ease-out forwards;
+  }
+
+  @keyframes mascot-heart-rise {
+    15% { opacity: 1; }
+    100% {
+      opacity: 0;
+      transform: translate(var(--heart-x), -4.5rem) rotate(var(--heart-r)) scale(1.35);
+    }
+  }
+
+  .looksky-mascot.is-zen {
+    opacity: 0.12;
+    pointer-events: none;
+  }
+
+  @media (min-width: 641px) and (pointer: fine) {
+    .looksky-mascot:not(.is-positioned) {
+      --mascot-size: 136px;
+      right: 1.5rem;
+      bottom: 2rem;
+    }
+
+    .looksky-mascot.is-collapsed:not(.is-positioned) {
+      --mascot-size: 62px;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .looksky-mascot:not(.is-positioned) {
+      right: 1.5rem;
+      bottom: 2rem;
+    }
+  }
+
+  @media (max-width: 640px), (pointer: coarse) {
+    .looksky-mascot {
+      --mascot-size: 84px;
+      right: max(0.75rem, env(safe-area-inset-right));
+      bottom: max(0.75rem, env(safe-area-inset-bottom));
+    }
+
+    .looksky-mascot.is-collapsed {
+      --mascot-size: 50px;
+    }
+
+    .mascot-close {
+      opacity: 1;
+      pointer-events: auto;
+      transform: scale(1);
+    }
+
+    .mascot-bubble {
+      right: 0;
+      font-size: 0.74rem;
+    }
+  }
+
+  @media (max-height: 500px) and (orientation: landscape) {
+    .looksky-mascot {
+      --mascot-size: 68px;
+      bottom: 0.55rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .looksky-mascot,
+    .mascot-sprite,
+    .mascot-bubble,
+    .mascot-close {
+      transition: none;
+    }
+
+    .mascot-heart {
+      display: none;
+    }
+  }
+</style>
+
+<script is:inline define:vars={{ spriteUrls }}>
+(function () {
+  var root = document.getElementById('looksky-mascot');
+  if (!root || root.dataset.bound === '1') return;
+  root.dataset.bound = '1';
+
+  var toggle = document.getElementById('mascot-toggle');
+  var close = document.getElementById('mascot-close');
+  var bubble = root.querySelector('.mascot-bubble');
+  var effects = root.querySelector('.mascot-effects');
+  if (!toggle || !close || !bubble || !effects) return;
+
+  var states = {
+    idle: { frames: 3, fps: 2, url: spriteUrls.idle },
+    think: { frames: 1, fps: 2, url: spriteUrls.think },
+    working: { frames: 3, fps: 3, url: spriteUrls.working },
+    celebrate: { frames: 3, fps: 4, url: spriteUrls.celebrate, once: true },
+    error: { frames: 2, fps: 8, url: spriteUrls.error, once: true },
+    welcome: { frames: 2, fps: 3, url: spriteUrls.welcome, once: true },
+    drag: { frames: 1, fps: 5, url: spriteUrls.drag },
+  };
+  var stateNames = Object.keys(states);
+  var storageKey = 'looksky-mascot-v1';
+  var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var isCoarse = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+  var currentState = 'idle';
+  var frame = 0;
+  var frameTimer = 0;
+  var bubbleTimer = 0;
+  var idleTimer = 0;
+  var dragging = false;
+  var pointerId = null;
+  var dragOffsetX = 0;
+  var dragOffsetY = 0;
+  var moved = false;
+  var loadedStates = { idle: true };
+  var settings = loadSettings();
+
+  root.style.setProperty('--mascot-sheet', 'url("' + states.idle.url + '")');
+  applySettings();
+  setState(settings.seenWelcome ? 'idle' : 'welcome');
+  if (!settings.seenWelcome) {
+    settings.seenWelcome = true;
+    saveSettings();
+    say('你好呀，我会在这里陪你看博客。', 4200);
+  }
+  scheduleIdleState();
+
+  function loadSettings() {
+    try {
+      var saved = JSON.parse(localStorage.getItem(storageKey) || '{}');
+      return {
+        collapsed: typeof saved.collapsed === 'boolean' ? saved.collapsed : isCoarse,
+        hidden: !!saved.hidden,
+        seenWelcome: !!saved.seenWelcome,
+        x: Number.isFinite(saved.x) ? saved.x : null,
+        y: Number.isFinite(saved.y) ? saved.y : null,
+      };
+    } catch (error) {
+      return { collapsed: isCoarse, hidden: false, seenWelcome: false, x: null, y: null };
+    }
+  }
+
+  function saveSettings() {
+    try {
+      localStorage.setItem(storageKey, JSON.stringify(settings));
+    } catch (error) {}
+  }
+
+  function applySettings() {
+    root.classList.toggle('is-collapsed', settings.collapsed);
+    root.hidden = settings.hidden;
+    toggle.setAttribute('aria-label', settings.collapsed ? '展开看板娘' : '和看板娘互动');
+    toggle.setAttribute('title', settings.collapsed ? '展开看板娘' : '点我聊天');
+    if (settings.x !== null && settings.y !== null) {
+      setPosition(settings.x, settings.y);
+    }
+  }
+
+  function preload(stateName) {
+    if (loadedStates[stateName] || !states[stateName]) return;
+    loadedStates[stateName] = true;
+    var image = new Image();
+    image.src = states[stateName].url;
+  }
+
+  function preloadInteractiveStates() {
+    stateNames.forEach(function (stateName) {
+      if (stateName !== 'idle') preload(stateName);
+    });
+  }
+
+  function clearFrameTimer() {
+    if (frameTimer) {
+      window.clearTimeout(frameTimer);
+      frameTimer = 0;
+    }
+  }
+
+  function setState(stateName) {
+    if (!states[stateName]) stateName = 'idle';
+    currentState = stateName;
+    frame = 0;
+    clearFrameTimer();
+    var state = states[stateName];
+    root.style.setProperty('--mascot-sheet', 'url("' + state.url + '")');
+    root.style.setProperty('--mascot-frames', String(state.frames));
+    root.style.setProperty('--mascot-frame', '0');
+    root.style.setProperty('--mascot-position', '0%');
+    if (!reduceMotion && state.frames > 1) {
+      advanceFrame();
+    }
+  }
+
+  function advanceFrame() {
+    var state = states[currentState];
+    if (!state || reduceMotion) return;
+    frameTimer = window.setTimeout(function () {
+      frame += 1;
+      if (frame >= state.frames) {
+        if (state.once) {
+          setState('idle');
+          return;
+        }
+        frame = 0;
+      }
+      root.style.setProperty('--mascot-frame', String(frame));
+      root.style.setProperty('--mascot-position', String((frame / (state.frames - 1)) * 100) + '%');
+      advanceFrame();
+    }, Math.max(120, 1000 / state.fps));
+  }
+
+  function say(text, duration) {
+    bubble.textContent = text;
+    bubble.classList.add('is-visible');
+    window.clearTimeout(bubbleTimer);
+    bubbleTimer = window.setTimeout(function () {
+      bubble.classList.remove('is-visible');
+    }, duration || 3200);
+  }
+
+  function hearts() {
+    if (reduceMotion) return;
+    for (var i = 0; i < 3; i += 1) {
+      var heart = document.createElement('span');
+      heart.className = 'mascot-heart';
+      heart.textContent = '♥';
+      heart.style.setProperty('--heart-x', (i - 1) * 1.3 + 'rem');
+      heart.style.setProperty('--heart-r', (i - 1) * 14 + 'deg');
+      heart.style.animationDelay = i * 90 + 'ms';
+      effects.appendChild(heart);
+      window.setTimeout(function (node) { node.remove(); }, 1200, heart);
+    }
+  }
+
+  function interact() {
+    settings.collapsed = false;
+    saveSettings();
+    applySettings();
+    preloadInteractiveStates();
+    var options = [
+      { state: 'think', text: '这篇文章有点意思，让我想想。' },
+      { state: 'working', text: '我也在认真看！' },
+      { state: 'celebrate', text: '发现一个很棒的点！' },
+      { state: 'idle', text: '点我可以拖着走哦。' },
+    ];
+    var choice = options[Math.floor(Math.random() * options.length)];
+    setState(choice.state);
+    say(choice.text);
+    hearts();
+    scheduleIdleState();
+  }
+
+  function scheduleIdleState() {
+    window.clearTimeout(idleTimer);
+    idleTimer = window.setTimeout(function () {
+      if (!dragging && !settings.collapsed && !reduceMotion) {
+        setState('think');
+        say('我在想，下篇会写什么呢？', 2800);
+        window.setTimeout(function () { if (!dragging) setState('idle'); }, 3600);
+      }
+    }, 45000);
+  }
+
+  function boundsFor(left, top) {
+    var rect = root.getBoundingClientRect();
+    var margin = isCoarse ? 8 : 12;
+    return {
+      left: Math.max(margin, Math.min(left, window.innerWidth - rect.width - margin)),
+      top: Math.max(margin, Math.min(top, window.innerHeight - rect.height - margin)),
+    };
+  }
+
+  function setPosition(left, top) {
+    var pos = boundsFor(left, top);
+    root.style.left = pos.left + 'px';
+    root.style.top = pos.top + 'px';
+    root.style.right = 'auto';
+    root.style.bottom = 'auto';
+    root.classList.add('is-positioned');
+    settings.x = pos.left;
+    settings.y = pos.top;
+  }
+
+  function persistPosition() {
+    saveSettings();
+  }
+
+  function onPointerDown(event) {
+    if (event.button != null && event.button !== 0) return;
+    dragging = true;
+    moved = false;
+    pointerId = event.pointerId;
+    root.classList.add('is-dragging');
+    setState('drag');
+    var rect = root.getBoundingClientRect();
+    dragOffsetX = event.clientX - rect.left;
+    dragOffsetY = event.clientY - rect.top;
+    setPosition(rect.left, rect.top);
+    try { toggle.setPointerCapture(event.pointerId); } catch (error) {}
+    if (event.cancelable) event.preventDefault();
+  }
+
+  function onPointerMove(event) {
+    if (!dragging || event.pointerId !== pointerId) return;
+    var left = event.clientX - dragOffsetX;
+    var top = event.clientY - dragOffsetY;
+    var previousX = settings.x;
+    var previousY = settings.y;
+    setPosition(left, top);
+    if (Math.abs(settings.x - previousX) > 3 || Math.abs(settings.y - previousY) > 3) moved = true;
+    if (event.cancelable) event.preventDefault();
+  }
+
+  function onPointerEnd(event) {
+    if (!dragging || (event && event.pointerId !== pointerId)) return;
+    dragging = false;
+    root.classList.remove('is-dragging');
+    try {
+      if (pointerId !== null && toggle.hasPointerCapture(pointerId)) toggle.releasePointerCapture(pointerId);
+    } catch (error) {}
+    pointerId = null;
+    persistPosition();
+    setState('idle');
+    scheduleIdleState();
+    if (!moved) interact();
+  }
+
+  toggle.addEventListener('pointerdown', onPointerDown, { passive: false });
+  toggle.addEventListener('pointermove', onPointerMove, { passive: false });
+  toggle.addEventListener('pointerup', onPointerEnd);
+  toggle.addEventListener('pointercancel', onPointerEnd);
+  toggle.addEventListener('lostpointercapture', onPointerEnd);
+  toggle.addEventListener('keydown', function (event) {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      interact();
+    }
+  });
+
+  close.addEventListener('click', function (event) {
+    event.stopPropagation();
+    settings.collapsed = true;
+    saveSettings();
+    applySettings();
+    setState('idle');
+    say('需要我时再点我哦。', 2200);
+  });
+
+  window.addEventListener('resize', function () {
+    if (settings.x !== null && settings.y !== null) {
+      setPosition(settings.x, settings.y);
+      persistPosition();
+    }
+  });
+
+  document.addEventListener('keydown', function (event) {
+    if (event.key === 'Escape' && !settings.collapsed) {
+      settings.collapsed = true;
+      saveSettings();
+      applySettings();
+      setState('idle');
+    }
+  });
+
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden) clearFrameTimer();
+    else setState(currentState);
+  });
+
+  document.addEventListener('astro:after-swap', function () {
+    root.classList.toggle('is-zen', document.body.classList.contains('zen-mode'));
+  });
+
+  var zenObserver = new MutationObserver(function () {
+    root.classList.toggle('is-zen', document.body.classList.contains('zen-mode'));
+  });
+  zenObserver.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+
+  if (window.swup && !window._mascotSwupBound) {
+    window._mascotSwupBound = true;
+    window.swup.hooks.on('page:view', function () {
+      root.classList.toggle('is-zen', document.body.classList.contains('zen-mode'));
+      if (settings.x !== null && settings.y !== null) setPosition(settings.x, settings.y);
+    });
+  }
+
+})();
+</script>

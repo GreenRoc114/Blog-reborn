@@ -6,8 +6,8 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["Noto Serif SC", "Plus Jakarta Sans", "sans-serif", ...defaultTheme.fontFamily.sans],
-        serif: ["Noto Serif SC", "Lora", "Georgia", "serif", ...defaultTheme.fontFamily.serif],
+        sans: ["system-ui", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Microsoft YaHei", "PingFang SC", ...defaultTheme.fontFamily.sans],
+        serif: ["Lora", "Songti SC", "STSong", "SimSun", "Georgia", "serif", ...defaultTheme.fontFamily.serif],
         mono: ["JetBrains Mono Variable", "JetBrains Mono", ...defaultTheme.fontFamily.mono],
       },
       boxShadow: {

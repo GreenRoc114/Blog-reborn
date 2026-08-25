@@ -14,6 +14,7 @@ import ImageWrapper from '../../components/misc/ImageWrapper.astro'
 import { profileConfig, siteConfig } from '../../config'
 import { formatDateToYYYYMMDD } from '../../utils/date-utils'
 import Comments from '@components/widget/Comments.astro'
+import Lightbox from '@components/misc/Lightbox.astro'
 import { getSortedPosts } from '@utils/content-utils'
 
 export async function getStaticPaths() {
@@ -191,6 +192,9 @@ const related = allPosts
     <div class="comments-section">
         <Comments />
     </div>
+
+    {/* 文章图片灯箱：本组件内部判断有无图片，无图时不加载 PhotoSwipe */}
+    <Lightbox />
 </MainGridLayout>
 
 <style is:global>

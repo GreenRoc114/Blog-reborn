@@ -1,5 +1,6 @@
 import { OGImageRoute } from 'astro-og-canvas';
 import { getCollection } from 'astro:content';
+import type { APIRoute, GetStaticPathsResult } from 'astro';
 
 const entries = await getCollection('posts');
 
@@ -7,10 +8,10 @@ const pages = Object.fromEntries(
   entries.map(({ slug, data }) => [slug, data])
 );
 
-export const { getStaticPaths, GET } = OGImageRoute({
+const ogRoute: { getStaticPaths: (...args: any[]) => GetStaticPathsResult | Promise<GetStaticPathsResult>; GET: APIRoute } = OGImageRoute({
   param: 'route',
   pages: pages,
-  getImageOptions: (path, page) => ({
+  getImageOptions: (path: string, page: (typeof entries)[number]['data']) => ({
     title: page.title,
     description: (page.description || '生命不息，折腾不止。') + '\n\n' + `gr114.com/posts/${path}`,
     bgGradient: [[245, 244, 237]],
@@ -38,3 +39,6 @@ export const { getStaticPaths, GET } = OGImageRoute({
     },
   }),
 });
+
+export const getStaticPaths: (...args: any[]) => GetStaticPathsResult | Promise<GetStaticPathsResult> = ogRoute.getStaticPaths;
+export const GET: APIRoute = ogRoute.GET;

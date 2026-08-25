@@ -2,6 +2,7 @@
 import MainGridLayout from '../layouts/MainGridLayout.astro'
 import { fetchTelegramChannel } from '../utils/telegram'
 import { Icon } from 'astro-icon/components'
+import Lightbox from '@components/misc/Lightbox.astro'
 
 // SSR 直出碎碎念，避免客户端脚本 + Swup 容器外脚本不执行的问题
 export const prerender = false
@@ -71,4 +72,7 @@ const memos = (await fetchTelegramChannel(channelName)) || []
             </div>
         </div>
     </div>
+
+    {/* Telegram 动态图片灯箱：无图时不加载 PhotoSwipe */}
+    <Lightbox />
 </MainGridLayout>
